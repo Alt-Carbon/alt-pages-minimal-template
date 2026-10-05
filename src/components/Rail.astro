@@ -1,0 +1,21 @@
+---
+import { day, pages, site, social } from "../lib/content";
+interface Props { page: string; fresh: { page: string; date: string } }
+const { page, fresh } = Astro.props;
+const current = page === "essay" ? "writing" : page;
+---
+<nav class="rail" aria-label="Site">
+  <a class="name" href="/">{site.name}</a>
+  <div class="links">
+    <a href="/" aria-current={current === "home" ? "page" : undefined}>Home</a>
+    {pages.map((p) => (
+      <a href={p.href} aria-current={current === p.id ? "page" : undefined}>
+        {p.label}{p.id === fresh.page && <span class="dot" title="Updated recently"></span>}
+      </a>
+    ))}
+  </div>
+  <div class="foot">
+    <Fragment set:html={social()} />
+    <p>Updated {day(fresh.date)}</p>
+  </div>
+</nav>

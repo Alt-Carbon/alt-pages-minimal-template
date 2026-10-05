@@ -1,0 +1,18 @@
+{
+  "intro": "What I've been reading, and what I'd pass on. Pull a book off the shelf to see why it's there.",
+  "articles": [
+    { "title": "How to Do Great Work", "by": "Paul Graham", "note": "The one I send to new hires.", "date": "2026-09-01", "url": "https://paulgraham.com/greatwork.html" },
+    { "title": "An app can be a home-cooked meal", "by": "Robin Sloan", "note": "Software for four people is allowed to exist.", "date": "2026-08-01", "url": "https://www.robinsloan.com/notes/home-cooked-app/" },
+    { "title": "A Brief History & Ethos of the Digital Garden", "by": "Maggie Appleton", "note": "", "date": "2026-07-01", "url": "https://maggieappleton.com/garden-history" },
+    { "title": "Fast", "by": "Patrick Collison", "note": "A list of things built quickly. Cheering.", "date": "2026-05-01", "url": "https://patrickcollison.com/fast" },
+    { "title": "You and Your Research", "by": "Richard Hamming", "note": "A 1986 talk that still reads like advice from a colleague.", "date": "2026-02-01", "url": "https://www.cs.virginia.edu/~robins/YouAndYourResearch.html" },
+    { "title": "The Tail End", "by": "Tim Urban", "note": "", "date": "2025-12-01", "url": "https://waitbutwhy.com/2015/12/the-tail-end.html" }
+  ],
+  "misc": [
+    { "title": "Potential for large-scale CO₂ removal via enhanced rock weathering with croplands", "by": "Beerling et al., Nature, 2020", "kind": "Paper", "note": "The paper most of our field is built on.", "url": "https://scholar.google.com/scholar?q=Potential+for+large-scale+CO2+removal+via+enhanced+rock+weathering+with+croplands" },
+    { "title": "Inventing on Principle", "by": "Bret Victor, 2012", "kind": "Talk", "note": "Why tools should show you what they're doing.", "url": "https://worrydream.com/" },
+    { "title": "Volts", "by": "David Roberts", "kind": "Podcast", "note": "Long interviews about the energy transition.", "url": "https://www.volts.wtf/" },
+    { "title": "Works in Progress", "by": "Magazine", "kind": "Newsletter", "note": "", "url": "https://worksinprogress.co/" },
+    { "title": "CDR.fyi", "by": "Carbon removal market data", "kind": "Site", "note": "Where I check who bought what.", "url": "https://www.cdr.fyi/" }
+  ]
+}

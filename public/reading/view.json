@@ -1,0 +1,404 @@
+{
+ "sample": true,
+ "syncedAt": "2026-09-24T08:00:00Z",
+ "profile": null,
+ "counts": {
+  "reading": 0,
+  "read": 28
+ },
+ "reading": [],
+ "read": [
+  {
+   "id": "1001",
+   "title": "Basin and Range",
+   "author": "John McPhee",
+   "cover": null,
+   "rating": 5,
+   "readAt": "2026-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": "Geology as travel writing.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Basin+and+Range"
+  },
+  {
+   "id": "1002",
+   "title": "Dirt: The Erosion of Civilizations",
+   "author": "David R. Montgomery",
+   "cover": null,
+   "rating": 5,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": "Soil is the slowest infrastructure we have.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Dirt:+The+Erosion+of+Civilizations"
+  },
+  {
+   "id": "1003",
+   "title": "The Wizard and the Prophet",
+   "author": "Charles C. Mann",
+   "cover": null,
+   "rating": 5,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": "The two camps I argue with in my own head.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Wizard+and+the+Prophet"
+  },
+  {
+   "id": "1004",
+   "title": "The Alchemy of Air",
+   "author": "Thomas Hager",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": "Haber, Bosch, and the nitrogen we all eat.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Alchemy+of+Air"
+  },
+  {
+   "id": "1005",
+   "title": "Energy and Civilization",
+   "author": "Vaclav Smil",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Energy+and+Civilization"
+  },
+  {
+   "id": "1006",
+   "title": "Not the End of the World",
+   "author": "Hannah Ritchie",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Not+the+End+of+the+World"
+  },
+  {
+   "id": "1007",
+   "title": "Under a White Sky",
+   "author": "Elizabeth Kolbert",
+   "cover": null,
+   "rating": null,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Under+a+White+Sky"
+  },
+  {
+   "id": "1008",
+   "title": "The Ends of the World",
+   "author": "Peter Brannen",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2026-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": "Five extinctions, mostly carbon.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Ends+of+the+World"
+  },
+  {
+   "id": "1009",
+   "title": "The Control of Nature",
+   "author": "John McPhee",
+   "cover": null,
+   "rating": null,
+   "readAt": null,
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Control+of+Nature"
+  },
+  {
+   "id": "1010",
+   "title": "The Ministry for the Future",
+   "author": "Kim Stanley Robinson",
+   "cover": null,
+   "rating": null,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "rock-soil-climate"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Ministry+for+the+Future"
+  },
+  {
+   "id": "1011",
+   "title": "The Checklist Manifesto",
+   "author": "Atul Gawande",
+   "cover": null,
+   "rating": 5,
+   "readAt": "2026-06-01",
+   "shelves": [
+    "getting-things-built"
+   ],
+   "review": "Deployments are a checklist problem.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Checklist+Manifesto"
+  },
+  {
+   "id": "1012",
+   "title": "How Big Things Get Done",
+   "author": "Bent Flyvbjerg and Dan Gardner",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "getting-things-built"
+   ],
+   "review": "Think slow, act fast.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=How+Big+Things+Get+Done"
+  },
+  {
+   "id": "1013",
+   "title": "The Box",
+   "author": "Marc Levinson",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "getting-things-built"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Box"
+  },
+  {
+   "id": "1014",
+   "title": "Seeing Like a State",
+   "author": "James C. Scott",
+   "cover": null,
+   "rating": 5,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "getting-things-built"
+   ],
+   "review": "Read before designing any form someone else has to fill in.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Seeing+Like+a+State"
+  },
+  {
+   "id": "1015",
+   "title": "High Output Management",
+   "author": "Andrew S. Grove",
+   "cover": null,
+   "rating": null,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "getting-things-built"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=High+Output+Management"
+  },
+  {
+   "id": "1016",
+   "title": "The Making of the Atomic Bomb",
+   "author": "Richard Rhodes",
+   "cover": null,
+   "rating": null,
+   "readAt": null,
+   "shelves": [
+    "getting-things-built"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Making+of+the+Atomic+Bomb"
+  },
+  {
+   "id": "1017",
+   "title": "The Dream Machine",
+   "author": "M. Mitchell Waldrop",
+   "cover": null,
+   "rating": null,
+   "readAt": null,
+   "shelves": [
+    "getting-things-built"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Dream+Machine"
+  },
+  {
+   "id": "1018",
+   "title": "Everybody Loves a Good Drought",
+   "author": "P. Sainath",
+   "cover": null,
+   "rating": 5,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "india"
+   ],
+   "review": "Still the best reporting on rural India.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Everybody+Loves+a+Good+Drought"
+  },
+  {
+   "id": "1019",
+   "title": "India After Gandhi",
+   "author": "Ramachandra Guha",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "india"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=India+After+Gandhi"
+  },
+  {
+   "id": "1020",
+   "title": "The Great Derangement",
+   "author": "Amitav Ghosh",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "india"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Great+Derangement"
+  },
+  {
+   "id": "1021",
+   "title": "The Hungry Tide",
+   "author": "Amitav Ghosh",
+   "cover": null,
+   "rating": null,
+   "readAt": "2026-06-01",
+   "shelves": [
+    "india"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Hungry+Tide"
+  },
+  {
+   "id": "1022",
+   "title": "The Inheritance of Loss",
+   "author": "Kiran Desai",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2026-06-01",
+   "shelves": [
+    "india"
+   ],
+   "review": "Set in the hills where our field teams work.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Inheritance+of+Loss"
+  },
+  {
+   "id": "1023",
+   "title": "Annihilation of Caste",
+   "author": "B. R. Ambedkar",
+   "cover": null,
+   "rating": null,
+   "readAt": null,
+   "shelves": [
+    "india"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Annihilation+of+Caste"
+  },
+  {
+   "id": "1024",
+   "title": "The Peregrine",
+   "author": "J. A. Baker",
+   "cover": null,
+   "rating": 5,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "everything-else"
+   ],
+   "review": "How to look at one thing for ten years.",
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Peregrine"
+  },
+  {
+   "id": "1025",
+   "title": "Pilgrim at Tinker Creek",
+   "author": "Annie Dillard",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2024-06-01",
+   "shelves": [
+    "everything-else"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Pilgrim+at+Tinker+Creek"
+  },
+  {
+   "id": "1026",
+   "title": "Stoner",
+   "author": "John Williams",
+   "cover": null,
+   "rating": 4,
+   "readAt": "2025-06-01",
+   "shelves": [
+    "everything-else"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=Stoner"
+  },
+  {
+   "id": "1027",
+   "title": "The Remains of the Day",
+   "author": "Kazuo Ishiguro",
+   "cover": null,
+   "rating": null,
+   "readAt": "2026-06-01",
+   "shelves": [
+    "everything-else"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=The+Remains+of+the+Day"
+  },
+  {
+   "id": "1028",
+   "title": "A Fine Balance",
+   "author": "Rohinton Mistry",
+   "cover": null,
+   "rating": null,
+   "readAt": null,
+   "shelves": [
+    "everything-else"
+   ],
+   "review": null,
+   "reviewMore": false,
+   "url": "https://openlibrary.org/search?q=A+Fine+Balance"
+  }
+ ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "site-template-sidebar",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Portfolio Project's sidebar template: a personal site you own, edit at /admin, and keep.",
+  "license": "MIT",
+  "scripts": {
+    "predev": "node scripts/prepare.mjs",
+    "dev": "astro dev",
+    "prebuild": "node scripts/prepare.mjs",
+    "build": "astro build",
+    "preview": "wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "astro": "^7.3.5",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@sveltia/cms": "0.228.0",
+    "wrangler": "^4.147.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.28.1": true,
+    "workerd@1.20261001.1": true
+  }
+}

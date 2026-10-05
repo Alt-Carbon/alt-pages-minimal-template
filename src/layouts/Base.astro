@@ -1,0 +1,41 @@
+---
+// Every page: head, the rail, one main, and the footer that only shows on phones.
+import "../styles/site.css";
+import Rail from "../components/Rail.astro";
+import { day, freshness, owner, repo, site, social, template } from "../lib/content";
+
+interface Props { title?: string; description?: string; page: string; bodyClass?: string }
+const { title, description, page, bodyClass = "" } = Astro.props;
+const fresh = await freshness();
+const fullTitle = title ? `${title} · ${site.name}` : site.name;
+const desc = description || `${site.oneLiner} ${site.intro}`.trim();
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{fullTitle}</title>
+<meta name="description" content={desc}>
+<meta name="author" content={site.name}>
+<meta property="og:title" content={fullTitle}>
+<meta property="og:description" content={desc}>
+<meta property="og:type" content={page === "essay" ? "article" : "website"}>
+{canonical && <link rel="canonical" href={canonical}>}
+<meta name="portfolio-template" content={`${template.name}@${template.version}`}>
+{owner && <meta name="portfolio-owner" content={owner}>}
+{repo && <meta name="portfolio-repo" content={repo}>}
+<link rel="alternate" type="application/json" href="/reading/view.json" title="Reading">
+</head>
+<body class={bodyClass}>
+<a class="skip" href="#content">Skip to content</a>
+<div class="wrap">
+  <Rail page={page} fresh={fresh} />
+  <main id="content" class:list={["page", { home: page === "home", essay: page === "essay" }]}>
+    <slot />
+  </main>
+  <footer><Fragment set:html={social()} /> · Updated {day(fresh.date)}</footer>
+</div>
+</body>
+</html>

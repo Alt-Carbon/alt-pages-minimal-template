@@ -1,0 +1,33 @@
+---
+import Base from "../layouts/Base.astro";
+import Shelf from "../components/Shelf.astro";
+import { monthYear, reading, site } from "../lib/content";
+const articles = [...reading.articles].sort((a, b) => b.date.localeCompare(a.date));
+---
+<Base page="reading" title="Reading" description={reading.intro}>
+  <h1>Reading</h1>
+  {reading.intro && <p>{reading.intro}</p>}
+  <div class="tabs">
+    <input class="vh t-books" type="radio" name="tab" id="t-books" checked>
+    <label for="t-books">Books<span id="books-count"></span></label>
+    <input class="vh t-articles" type="radio" name="tab" id="t-articles">
+    <label for="t-articles">Articles<span>{articles.length}</span></label>
+    <input class="vh t-misc" type="radio" name="tab" id="t-misc">
+    <label for="t-misc">Misc<span>{reading.misc.length}</span></label>
+    <section class="tp tp-books" aria-label="Books"><Shelf goodreads={site.goodreads} /></section>
+    <section class="tp tp-articles" aria-label="Articles">
+      <ul class="rows">
+        {articles.map((a) => (
+          <li><span><a href={a.url}>{a.title}</a><span class="n">{a.by}{a.note && `. ${a.note}`}</span></span><span class="r">{monthYear(a.date)}</span></li>
+        ))}
+      </ul>
+    </section>
+    <section class="tp tp-misc" aria-label="Misc">
+      <ul class="rows">
+        {reading.misc.map((m) => (
+          <li><span><a href={m.url}>{m.title}</a><span class="n">{m.by}{m.note && `. ${m.note}`}</span></span><span class="r">{m.kind}</span></li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</Base>

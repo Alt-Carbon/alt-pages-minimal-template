@@ -1,0 +1,16 @@
+{
+  "paragraphs": [
+    "I'm Asha Rao. I work on AI and internal tools at Alt Carbon, a company that removes carbon dioxide from the air by spreading crushed basalt on farmland.",
+    "Most of my work is making software that people who don't care about software can use without help. At the moment that means The Portfolio Project: every colleague gets a personal site they can edit themselves and take with them when they leave.",
+    "I like websites that are small, fast and made of text. This one is my argument for them."
+  ],
+  "contact": "Email is best: [asha@example.com](mailto:asha@example.com). I answer most things within a week. I'm always glad to hear from people building small tools for field teams.",
+  "facts": [
+    { "label": "Based in", "value": "India" },
+    { "label": "Works at", "value": "Alt Carbon" },
+    { "label": "Email", "value": "[asha@example.com](mailto:asha@example.com)" },
+    { "label": "Elsewhere", "value": "[LinkedIn](https://example.com), [GitHub](https://example.com), [X](https://example.com)" }
+  ],
+  "shortBio": "Asha Rao builds AI and internal tools at Alt Carbon, an enhanced rock weathering company in India. Current project: a portable personal website for every employee.",
+  "colophon": "This site is plain HTML. No scripts to speak of, no web fonts, no trackers. It lives in my own GitHub and Cloudflare accounts, so it goes where I go."
+}

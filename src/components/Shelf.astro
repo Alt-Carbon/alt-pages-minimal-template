@@ -1,0 +1,27 @@
+---
+// The Books tab. Filled by the browser from /reading/view.json so the shelf
+// changes without a rebuild. Without JavaScript it says where the books live.
+interface Props { goodreads: string }
+const { goodreads } = Astro.props;
+---
+<div id="shelf" data-goodreads={goodreads}>
+  <noscript><p class="src">The shelf needs JavaScript. {goodreads && <a href={goodreads}>See it on Goodreads.</a>}</p></noscript>
+</div>
+<p class="src" id="shelf-src"></p>
+<script>
+  import { dayOf, load, renderShelves } from "../scripts/shelf";
+  const root = document.getElementById("shelf")!;
+  const src = document.getElementById("shelf-src")!;
+  const count = document.getElementById("books-count");
+  const view = await load();
+  if (!view || (!view.read.length && !view.reading.length)) {
+    src.textContent = root.dataset.goodreads ? "Nothing synced yet. The first sync takes about a minute after a Goodreads profile is set." : "No Goodreads profile connected yet. Add one in the editor under Site settings.";
+  } else {
+    const n = renderShelves(view, root);
+    if (count) count.textContent = String(n);
+    const when = view.syncedAt ? `, ${dayOf(view.syncedAt)}` : "";
+    const where = root.dataset.goodreads ? `<a href="${root.dataset.goodreads}">Goodreads</a>` : "Goodreads";
+    src.innerHTML = (view.sample ? "A sample shelf. Connect a Goodreads profile in the editor to show your own. " : "")
+      + `Synced from my ${where} shelves${when}. A small square marks the ones I would press into your hands.`;
+  }
+</script>

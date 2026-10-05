@@ -1,0 +1,18 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { day, writing } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const posts = await writing();
+  return posts.map((p) => ({ params: { slug: p.id }, props: { post: p, others: posts.filter((o) => o.id !== p.id).slice(0, 3) } }));
+}
+const { post, others } = Astro.props;
+const { Content } = await render(post);
+---
+<Base page="essay" title={post.data.title} description={post.data.blurb}>
+  <h1>{post.data.title}</h1>
+  <p class="stamp">{day(post.data.date)}</p>
+  <Content />
+  <p class="more">More writing: {others.map((o) => <a href={o.data.link || `/writing/${o.id}`}>{o.data.title}</a>)}<a href="/writing">All writing →</a></p>
+</Base>

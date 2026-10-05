@@ -1,0 +1,21 @@
+---
+import Base from "../layouts/Base.astro";
+import MiniShelf from "../components/MiniShelf.astro";
+import { day, inline, now, site, social, writing } from "../lib/content";
+const posts = (await writing()).slice(0, 4);
+const nowLine = now.groups[0]?.items[0];
+---
+<Base page="home">
+  <h1 class="vh">{site.name}</h1>
+  <p class="lead">{site.oneLiner} {site.intro}</p>
+  <p class="soc"><Fragment set:html={social()} /></p>
+  {nowLine && <p class="nowline"><a href="/now">Now</a><Fragment set:html={inline(nowLine)} /></p>}
+  <div class="sh"><h2>Writing</h2><a class="all" href="/writing">View all</a></div>
+  <ul class="rows">
+    {posts.map((p) => (
+      <li><span><a href={p.data.link || `/writing/${p.id}`}>{p.data.title}</a>{p.data.blurb && <span class="n">{p.data.blurb}</span>}</span><span class="r">{day(p.data.date)}</span></li>
+    ))}
+  </ul>
+  <div class="sh"><h2>Books</h2><a class="all" href="/reading">View all</a></div>
+  <MiniShelf />
+</Base>

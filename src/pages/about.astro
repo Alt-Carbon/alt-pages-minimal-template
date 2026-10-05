@@ -1,0 +1,15 @@
+---
+import Base from "../layouts/Base.astro";
+import { about, inline, site } from "../lib/content";
+---
+<Base page="about" title="About" description={about.shortBio}>
+  <h1>About</h1>
+  {site.photo
+    ? <div class="photo"><img src={site.photo} alt={`Photo of ${site.name}`}></div>
+    : <div class="photo" role="img" aria-label="Photo placeholder">Photo<br>(optional)</div>}
+  {about.paragraphs.map((p) => <p><Fragment set:html={inline(p)} /></p>)}
+  {about.contact && <><h2>Contact</h2><p><Fragment set:html={inline(about.contact)} /></p></>}
+  {about.facts.length > 0 && <dl>{about.facts.map((f) => <><dt>{f.label}</dt><dd><Fragment set:html={inline(f.value)} /></dd></>)}</dl>}
+  {about.shortBio && <><h2>Short bio</h2><p>{about.shortBio}</p></>}
+  {about.colophon && <><h2>Colophon</h2><p><Fragment set:html={inline(about.colophon)} /></p></>}
+</Base>

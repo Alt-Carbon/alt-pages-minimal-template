@@ -1,0 +1,11 @@
+{
+  "intro": "Things I'd like to understand. Some have the start of an answer. If you know more, write to me.",
+  "items": [
+    { "question": "Why is it still hard for someone who doesn't program to own a website?", "answer": "Hosting is nearly free and editors are good. What is missing is ownership that survives a job change. That is the bet behind the project I'm working on." },
+    { "question": "Why do internal tools get worse as a company grows?", "answer": "" },
+    { "question": "How do you prove that a tonne of carbon was removed by a rock?", "answer": "Slowly, with soil and water samples, and with more humility than most dashboards show." },
+    { "question": "What would software look like if it had to work for ten years without an update?", "answer": "" },
+    { "question": "Why did personal home pages die, and are they coming back?", "answer": "" },
+    { "question": "How much of a field team's day is data entry, and how much of that is our fault?", "answer": "" }
+  ]
+}

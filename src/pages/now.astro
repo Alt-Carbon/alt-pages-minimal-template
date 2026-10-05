@@ -1,0 +1,15 @@
+---
+import Base from "../layouts/Base.astro";
+import { day, inline, now } from "../lib/content";
+---
+<Base page="now" title="Now" description={`What ${now.groups[0]?.heading === "Work" ? "I am working on" : "I am doing"} this month.`}>
+  <h1>Now</h1>
+  <p class="stamp">Updated {day(now.updated)}</p>
+  {now.groups.map((g) => (
+    <>
+      <h2>{g.heading}</h2>
+      <ul>{g.items.map((i) => <li><Fragment set:html={inline(i)} /></li>)}</ul>
+    </>
+  ))}
+  <p style="margin-top:40px">This is a <a href="https://nownownow.com/about">now page</a>.</p>
+</Base>

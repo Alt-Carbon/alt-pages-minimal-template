@@ -1,0 +1,14 @@
+---
+import Base from "../layouts/Base.astro";
+import { inline, questions } from "../lib/content";
+---
+<Base page="questions" title="Questions" description={questions.intro}>
+  <h1>Questions</h1>
+  {questions.intro && <p>{questions.intro}</p>}
+  {questions.items.map((q) => (
+    <>
+      <h2>{q.question}</h2>
+      {q.answer && <p><Fragment set:html={inline(q.answer)} /></p>}
+    </>
+  ))}
+</Base>

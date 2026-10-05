@@ -15,7 +15,7 @@ const { goodreads } = Astro.props;
   const count = document.getElementById("books-count");
   const view = await load();
   if (!view || (!view.read.length && !view.reading.length)) {
-    src.textContent = root.dataset.goodreads ? "Nothing synced yet. The first sync takes about a minute after a Goodreads profile is set." : "No Goodreads profile connected yet. Add one in the editor under Site settings.";
+    src.textContent = view?.syncing || root.dataset.goodreads ? "Reading the shelf from Goodreads for the first time. This takes under a minute; reload to see it." : "No Goodreads profile connected yet. Add one in the editor under Site settings.";
   } else {
     const n = renderShelves(view, root);
     if (count) count.textContent = String(n);

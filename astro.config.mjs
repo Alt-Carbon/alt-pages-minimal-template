@@ -7,5 +7,4 @@ export default defineConfig({
   build: { format: "file" },
   trailingSlash: "never",
   compressHTML: true,
-  markdown: { remarkRehype: { footnoteLabel: "Notes", footnoteBackLabel: "Back to the text" } },
 });

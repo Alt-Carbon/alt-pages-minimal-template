@@ -23,6 +23,11 @@ const repo = process.env.SITE_REPO || fromGit() || site.repo || "";
 const owner = repo.split("/")[0] || site.owner || "";
 if (!repo) console.warn("prepare: could not tell which GitHub repository this is. Set `repo` in content/site.json (owner/name) so the editor can sign in.");
 
+// The reading sync reads which Goodreads profile to follow from this file.
+const goodreadsId = (/(?:user\/show\/|review\/list(?:_rss)?\/|^)(\d+)/.exec(String(site.goodreads || "").trim()) || [])[1] || null;
+mkdirSync("public/reading", { recursive: true });
+writeFileSync("public/reading/config.json", JSON.stringify({ userId: goodreadsId }));
+
 mkdirSync("src/generated", { recursive: true });
 writeFileSync("src/generated/build.json", JSON.stringify({ owner, repo, builtAt: new Date().toISOString(), template: `sidebar@${pkg.version}` }, null, 2));
 
@@ -180,4 +185,4 @@ collections:
               - ${link}
 `;
 writeFileSync("public/admin/config.yml", config);
-console.log(`prepare: repo ${repo || "(unknown)"}, owner ${owner || "(unknown)"}, editor config written`);
+console.log(`prepare: repo ${repo || "(unknown)"}, owner ${owner || "(unknown)"}, goodreads ${goodreadsId || "(none)"}, editor config written`);

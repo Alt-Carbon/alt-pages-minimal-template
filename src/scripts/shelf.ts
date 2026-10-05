@@ -4,7 +4,7 @@
 
 type Book = { id: string; title: string; author: string; cover: string | null; rating: number | null;
   readAt: string | null; shelves: string[]; review: string | null; url: string };
-type View = { sample?: boolean; syncedAt: string | null; reading: Book[]; read: Book[]; profile?: { url?: string } | null };
+type View = { sample?: boolean; syncing?: boolean; syncedAt: string | null; reading: Book[]; read: Book[]; profile?: { url?: string } | null };
 
 const CLOTH: [string, string][] = [["#1f2a36", "#e9e4d8"], ["#b8862b", "#1c1710"], ["#e4ded0", "#2a2723"], ["#27354d", "#ece6d6"],
   ["#6d5a7e", "#f1ecf4"], ["#3b3b38", "#e8e3d6"], ["#1f3b2e", "#e6e0cc"], ["#efe3c8", "#3a2f1e"],

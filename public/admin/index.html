@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fcfcfc">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
 <title>Editor</title>
 <link rel="cms-config-url" href="/admin/config.yml">
 <style>
@@ -82,8 +84,6 @@
   .content-editor .item-list > .item-wrapper { border: 1px solid hsl(var(--sui-border-color-2-hsl)) !important; border-radius: 8px !important; background: hsl(var(--sui-background-color-2-hsl)) !important; overflow: hidden; }
   .content-editor .item-wrapper > .item { background: transparent !important; }
   .content-editor .item-wrapper > .item > .header { background: hsl(var(--sui-background-color-3-hsl)) !important; min-height: 36px !important; padding: 0 6px !important; border-bottom: 1px solid hsl(var(--sui-border-color-2-hsl) / 0.6); }
-  .content-editor .item-wrapper > .item > .header .button { opacity: 0.55; }
-  .content-editor .item-wrapper > .item > .header:hover .button { opacity: 1; }
   .content-editor .item-wrapper > .item > .item-body > section.field { padding: 16px 16px 18px !important; border-top: 0 !important; }
   .content-editor .item-wrapper > .item > .item-body > section.field > header h4 { font-size: 13px !important; color: hsl(var(--sui-foreground-color-4-hsl)); }
   /* Sveltia pins a list's top bar and its "Add" bar to the viewport while the list is on
@@ -92,6 +92,31 @@
   .content-editor div.toolbar.bottom.add { position: static !important; background: transparent !important; margin-top: 12px; min-height: 0 !important; height: auto !important; padding: 0 !important; justify-content: flex-end; }
   .content-editor .button.primary { border-radius: 6px !important; font-weight: 600; }
   .content-editor .button.secondary, .content-editor .button.tertiary { border-radius: 6px !important; }
+
+  /* Craft pass (Emil Kowalski's checklist + Web Interface Guidelines), 5 Oct 2026 */
+  /* Sveltia uses `transition: .2s` (all properties). Name the properties, keep them fast. */
+  .sui.button, .content-editor input, .content-editor textarea, #page-container [role=treeitem] {
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, outline-color 150ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1) !important;
+    touch-action: manipulation; }
+  /* Press feedback on anything pressable. */
+  .sui.button:not(:disabled):active { transform: scale(0.97); }
+  #page-container [role=treeitem]:active { transform: scale(0.985); }
+  /* Hover states only where there is a pointer that can hover. */
+  @media (hover: hover) and (pointer: fine) {
+    .content-editor .item-wrapper > .item > .header .button { opacity: 0.55; }
+    .content-editor .item-wrapper > .item > .header:hover .button, .content-editor .item-wrapper > .item > .header .button:focus-visible { opacity: 1; }
+  }
+  @media (hover: none) { .content-editor .item-wrapper > .item > .header .button { opacity: 0.8; } }
+  /* Card header controls are 24px icons; give them a 32px hit area without growing the icon. */
+  .content-editor .item-wrapper > .item > .header .button { min-width: 32px !important; min-height: 32px !important; }
+  /* Sidebar: section labels as quiet eyebrows, counts in tabular figures. */
+  #page-container .option-group > .label, #page-container [role=tree] > [class*=label] { font-size: 11px !important; font-weight: 600 !important; letter-spacing: 0.06em; text-transform: uppercase; color: hsl(var(--sui-foreground-color-4-hsl)) !important; }
+  #page-container [role=treeitem] { font-variant-numeric: tabular-nums; }
+  /* Reduced motion: keep colour changes, drop movement. */
+  @media (prefers-reduced-motion: reduce) {
+    .sui.button, .content-editor input, .content-editor textarea, #page-container [role=treeitem] { transition-property: background-color, border-color, color, outline-color !important; }
+    .sui.button:not(:disabled):active, #page-container [role=treeitem]:active { transform: none; }
+  }
 </style>
 </head>
 <body>

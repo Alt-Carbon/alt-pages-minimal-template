@@ -86,7 +86,10 @@
   .content-editor .item-wrapper > .item > .header:hover .button { opacity: 1; }
   .content-editor .item-wrapper > .item > .item-body > section.field { padding: 16px 16px 18px !important; border-top: 0 !important; }
   .content-editor .item-wrapper > .item > .item-body > section.field > header h4 { font-size: 13px !important; color: hsl(var(--sui-foreground-color-4-hsl)); }
-  .content-editor div.toolbar.top { padding: 0 !important; margin-bottom: 10px; background: transparent !important; }
+  /* Sveltia pins a list's top bar and its "Add" bar to the viewport while the list is on
+     screen; with cards and gaps they cut across the items. Let them sit in the flow. */
+  .content-editor div.toolbar.top { position: static !important; padding: 0 !important; margin-bottom: 10px; background: transparent !important; }
+  .content-editor div.toolbar.bottom.add { position: static !important; background: transparent !important; margin-top: 12px; min-height: 0 !important; height: auto !important; padding: 0 !important; justify-content: flex-end; }
   .content-editor .button.primary { border-radius: 6px !important; font-weight: 600; }
   .content-editor .button.secondary, .content-editor .button.tertiary { border-radius: 6px !important; }
 </style>

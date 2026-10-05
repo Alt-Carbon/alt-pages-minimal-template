@@ -36,8 +36,8 @@ mkdirSync("public/admin", { recursive: true });
 copyFileSync("node_modules/@sveltia/cms/dist/sveltia-cms.js", "public/admin/sveltia-cms.js");
 
 const link = `{ label: Link, name: url, widget: string }`;
-const links = (name, label, hint = "") => `
-          - { label: ${label}, name: ${name}, widget: list, required: false${hint ? `, hint: "${hint}"` : ""}, fields: [ { label: Label, name: label, widget: string }, ${link} ] }`;
+const links = (name, label, hint = "", pad = "      ") => `
+${pad}- { label: ${label}, name: ${name}, widget: list, required: false${hint ? `, hint: "${hint}"` : ""}, fields: [ { label: Label, name: label, widget: string }, ${link} ] }`;
 
 // Where the editor signs in. Empty in Site settings means the company's sign-in
 // worker; after leaving, a person puts their own copy's address there instead.
@@ -55,84 +55,58 @@ media_folder: public/media
 public_folder: /media
 slug: { encoding: ascii, clean_accents: true }
 editor: { preview: false }
-collections:
+app_title: ${JSON.stringify(site.name + " · editor")}
+logo_url: /admin/logo.svg
+# One file each, opened straight into the editor.
+singletons:
   - name: site
     label: Site settings
     icon: settings
-    files:
-      - name: site
-        label: Site settings
-        file: content/site.json
-        format: json
-        fields:
-          - { label: Name, name: name, widget: string }
-          - { label: Pronunciation, name: pronunciation, widget: string, required: false, hint: "Optional, e.g. /ˈɑː.ʃə ˈraʊ/" }
-          - { label: One-liner, name: oneLiner, widget: string, hint: "The first sentence on the home page." }
-          - { label: Second line, name: intro, widget: text, required: false, hint: "One or two more sentences under the one-liner." }
-          - { label: Place, name: place, widget: string, required: false }
-          - { label: Employer, name: employer, widget: string, required: false }
-          - { label: Employer link, name: employerUrl, widget: string, required: false }
-          - { label: Photo, name: photo, widget: image, required: false, hint: "Shown on the About page." }${links("social", "Social links", "Email first, as mailto:you@example.com")}
-          - { label: Goodreads profile, name: goodreads, widget: string, required: false, hint: "Paste your Goodreads profile address. Your 'read' and 'currently reading' shelves appear on the Reading page. The profile must be public." }
-          - { label: GitHub login, name: owner, widget: string, required: false, hint: "Only needed if the build cannot read it from the repository." }
-          - { label: Repository, name: repo, widget: string, required: false, hint: "owner/name. Only needed if the build cannot read it from git." }
-          - { label: Sign-in service, name: authWorker, widget: string, required: false, hint: "Leave empty while at the company. After leaving, the address of your own copy of the sign-in worker." }
+    file: content/site.json
+    format: json
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Pronunciation, name: pronunciation, widget: string, required: false, hint: "Optional, e.g. /ˈɑː.ʃə ˈraʊ/" }
+      - { label: One-liner, name: oneLiner, widget: string, hint: "The first sentence on the home page." }
+      - { label: Second line, name: intro, widget: text, required: false, hint: "One or two more sentences under the one-liner." }
+      - { label: Place, name: place, widget: string, required: false }
+      - { label: Employer, name: employer, widget: string, required: false }
+      - { label: Employer link, name: employerUrl, widget: string, required: false }
+      - { label: Photo, name: photo, widget: image, required: false, hint: "Shown on the About page." }${links("social", "Social links", "Email first, as mailto:you@example.com")}
+      - { label: Goodreads profile, name: goodreads, widget: string, required: false, hint: "Paste your Goodreads profile address. Your 'read' and 'currently reading' shelves appear on the Reading page. The profile must be public." }
+      - { label: GitHub login, name: owner, widget: string, required: false, hint: "Only needed if the build cannot read it from the repository." }
+      - { label: Repository, name: repo, widget: string, required: false, hint: "owner/name. Only needed if the build cannot read it from git." }
+      - { label: Sign-in service, name: authWorker, widget: string, required: false, hint: "Leave empty while at the company. After leaving, the address of your own copy of the sign-in worker." }
   - name: now
     label: Now
     icon: calendar_today
-    files:
-      - name: now
-        label: Now
-        file: content/now.json
-        format: json
+    file: content/now.json
+    format: json
+    fields:
+      - { label: Updated on, name: updated, widget: datetime, format: YYYY-MM-DD, time_format: false }
+      - label: Groups
+        name: groups
+        widget: list
         fields:
-          - { label: Updated on, name: updated, widget: datetime, format: YYYY-MM-DD, time_format: false }
-          - label: Groups
-            name: groups
-            widget: list
-            fields:
-              - { label: Heading, name: heading, widget: string }
-              - { label: Items, name: items, widget: list, field: { label: Item, name: item, widget: string }, hint: "Use *asterisks* for italics and [text](link) for links." }
+          - { label: Heading, name: heading, widget: string }
+          - { label: Items, name: items, widget: list, field: { label: Item, name: item, widget: string }, hint: "Use *asterisks* for italics and [text](link) for links." }
   - name: about
     label: About
     icon: person
-    files:
-      - name: about
-        label: About
-        file: content/about.json
-        format: json
-        fields:
-          - { label: Paragraphs, name: paragraphs, widget: list, field: { label: Paragraph, name: p, widget: text } }
-          - { label: Contact, name: contact, widget: text, required: false, hint: "Use [text](mailto:you@example.com) for the email link." }
-          - { label: Facts, name: facts, widget: list, required: false, fields: [ { label: Label, name: label, widget: string }, { label: Value, name: value, widget: string } ] }
-          - { label: Short bio, name: shortBio, widget: text, required: false, hint: "Third person, two sentences. Used when someone introduces you." }
-          - { label: Colophon, name: colophon, widget: text, required: false }
-  - name: writing
-    label: Writing
-    icon: edit_note
-    folder: content/writing
-    create: true
-    format: frontmatter
-    extension: md
-    slug: "{{slug}}"
-    summary: "{{title}} · {{date}}"
-    sortable_fields: [date, title]
+    file: content/about.json
+    format: json
     fields:
-      - { label: Title, name: title, widget: string }
-      - { label: Date, name: date, widget: datetime, format: YYYY-MM-DD, time_format: false }
-      - { label: One-line blurb, name: blurb, widget: string, required: false }
-      - { label: Published elsewhere, name: link, widget: string, required: false, hint: "If the piece lives on another site, its address. The list links there instead." }
-      - { label: Draft, name: draft, widget: boolean, default: false, required: false, hint: "Drafts are not published." }
-      - { label: Body, name: body, widget: markdown }
+      - { label: Paragraphs, name: paragraphs, widget: list, field: { label: Paragraph, name: p, widget: text } }
+      - { label: Contact, name: contact, widget: text, required: false, hint: "Use [text](mailto:you@example.com) for the email link." }
+      - { label: Facts, name: facts, widget: list, required: false, fields: [ { label: Label, name: label, widget: string }, { label: Value, name: value, widget: string } ] }
+      - { label: Short bio, name: shortBio, widget: text, required: false, hint: "Third person, two sentences. Used when someone introduces you." }
+      - { label: Colophon, name: colophon, widget: text, required: false }
   - name: talks
     label: Talks
     icon: mic
-    files:
-      - name: talks
-        label: Talks
-        file: content/talks.json
-        format: json
-        fields:
+    file: content/talks.json
+    format: json
+    fields:
           - label: Talks
             name: items
             widget: list
@@ -140,16 +114,13 @@ collections:
             fields:
               - { label: Title, name: title, widget: string }
               - { label: Date, name: date, widget: datetime, format: YYYY-MM-DD, time_format: false }
-              - { label: Where, name: where, widget: string, required: false }${links("links", "Links", "Slides, recording, and so on")}
+              - { label: Where, name: where, widget: string, required: false }${links("links", "Links", "Slides, recording, and so on", "          ")}
   - name: questions
     label: Questions
     icon: help
-    files:
-      - name: questions
-        label: Questions
-        file: content/questions.json
-        format: json
-        fields:
+    file: content/questions.json
+    format: json
+    fields:
           - { label: Introduction, name: intro, widget: text, required: false }
           - label: Questions
             name: items
@@ -161,12 +132,9 @@ collections:
   - name: reading
     label: Reading
     icon: menu_book
-    files:
-      - name: reading
-        label: Reading
-        file: content/reading.json
-        format: json
-        fields:
+    file: content/reading.json
+    format: json
+    fields:
           - { label: Introduction, name: intro, widget: text, required: false }
           - label: Articles
             name: articles
@@ -189,6 +157,24 @@ collections:
               - { label: Kind, name: kind, widget: string, required: false, hint: "Paper, Talk, Podcast, Newsletter, Site" }
               - { label: Note, name: note, widget: string, required: false }
               - ${link}
+collections:
+  - name: writing
+    label: Writing
+    icon: edit_note
+    folder: content/writing
+    create: true
+    format: frontmatter
+    extension: md
+    slug: "{{slug}}"
+    summary: "{{title}} · {{date}}"
+    sortable_fields: [date, title]
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime, format: YYYY-MM-DD, time_format: false }
+      - { label: One-line blurb, name: blurb, widget: string, required: false }
+      - { label: Published elsewhere, name: link, widget: string, required: false, hint: "If the piece lives on another site, its address. The list links there instead." }
+      - { label: Draft, name: draft, widget: boolean, default: false, required: false, hint: "Drafts are not published." }
+      - { label: Body, name: body, widget: markdown }
 `;
 writeFileSync("public/admin/config.yml", config);
 console.log(`prepare: repo ${repo || "(unknown)"}, owner ${owner || "(unknown)"}, goodreads ${goodreadsId || "(none)"}, editor config written`);

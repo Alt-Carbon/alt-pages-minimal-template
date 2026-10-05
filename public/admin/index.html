@@ -6,6 +6,19 @@
 <meta name="robots" content="noindex">
 <title>Editor</title>
 <link rel="cms-config-url" href="/admin/config.yml">
+<style>
+  /* The editor follows the site: warm neutral greys instead of Sveltia's blue, the
+     system font, and softer corners. These are Sveltia's own theme variables. */
+  /* !important because Sveltia's own stylesheet loads after this one. */
+  :root {
+    --sui-base-hue: 160 !important;
+    --sui-font-family-default: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
+    --sui-control-medium-border-radius: 8px !important;
+    --sui-textbox-border-radius: 6px !important;
+  }
+  :root, :root[data-theme="light"] { --sui-primary-accent-color: hsl(160 55% 30%) !important; --sui-primary-accent-color-light: hsl(160 45% 40%) !important; }
+  :root[data-theme="dark"] { --sui-primary-accent-color: hsl(160 50% 44%) !important; --sui-primary-accent-color-light: hsl(160 45% 54%) !important; }
+</style>
 </head>
 <body>
 <script src="/admin/sveltia-cms.js"></script>

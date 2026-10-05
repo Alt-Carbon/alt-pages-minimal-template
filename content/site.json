@@ -26,7 +26,9 @@
     }
   ],
   "goodreads": "",
-  "owner": "",
-  "repo": "",
-  "authWorker": ""
+  "advanced": {
+    "authWorker": "",
+    "owner": "",
+    "repo": ""
+  }
 }

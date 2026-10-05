@@ -7,17 +7,47 @@
 <title>Editor</title>
 <link rel="cms-config-url" href="/admin/config.yml">
 <style>
-  /* The editor follows the site: warm neutral greys instead of Sveltia's blue, the
-     system font, and softer corners. These are Sveltia's own theme variables. */
-  /* !important because Sveltia's own stylesheet loads after this one. */
+  /* The editor follows the site: neutral greys (Sveltia tints every grey with its base
+     hue, so the whole scale is redefined here), the system font, one green accent,
+     softer corners. These are Sveltia's own theme variables; !important because its
+     stylesheet loads after this one. Check after any Sveltia upgrade. */
   :root {
     --sui-base-hue: 160 !important;
     --sui-font-family-default: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
     --sui-control-medium-border-radius: 8px !important;
     --sui-textbox-border-radius: 6px !important;
+    --sui-shadow-color: 0 0% 0% !important;
   }
-  :root, :root[data-theme="light"] { --sui-primary-accent-color: hsl(160 55% 30%) !important; --sui-primary-accent-color-light: hsl(160 45% 40%) !important; }
-  :root[data-theme="dark"] { --sui-primary-accent-color: hsl(160 50% 44%) !important; --sui-primary-accent-color-light: hsl(160 45% 54%) !important; }
+  :root, :root[data-theme="light"] {
+    --sui-primary-accent-color: hsl(160 55% 30%) !important;
+    --sui-primary-accent-color-light: hsl(160 45% 40%) !important;
+    --sui-foreground-color-1-hsl: 0 0% 5% !important;
+    --sui-foreground-color-2-hsl: 0 0% 12% !important;
+    --sui-foreground-color-3-hsl: 0 0% 22% !important;
+    --sui-foreground-color-4-hsl: 0 0% 40% !important;
+    --sui-background-color-1-hsl: 0 0% 100% !important;
+    --sui-background-color-2-hsl: 0 0% 99% !important;
+    --sui-background-color-3-hsl: 0 0% 95% !important;
+    --sui-background-color-4-hsl: 0 0% 91% !important;
+    --sui-background-color-5-hsl: 0 0% 82% !important;
+    --sui-border-color-1-hsl: 0 0% 62% !important;
+    --sui-border-color-2-hsl: 0 0% 76% !important;
+  }
+  :root[data-theme="dark"] {
+    --sui-primary-accent-color: hsl(160 50% 44%) !important;
+    --sui-primary-accent-color-light: hsl(160 45% 54%) !important;
+    --sui-foreground-color-1-hsl: 0 0% 96% !important;
+    --sui-foreground-color-2-hsl: 0 0% 90% !important;
+    --sui-foreground-color-3-hsl: 0 0% 80% !important;
+    --sui-foreground-color-4-hsl: 0 0% 62% !important;
+    --sui-background-color-1-hsl: 0 0% 4% !important;
+    --sui-background-color-2-hsl: 0 0% 7% !important;
+    --sui-background-color-3-hsl: 0 0% 11% !important;
+    --sui-background-color-4-hsl: 0 0% 15% !important;
+    --sui-background-color-5-hsl: 0 0% 24% !important;
+    --sui-border-color-1-hsl: 0 0% 34% !important;
+    --sui-border-color-2-hsl: 0 0% 24% !important;
+  }
 </style>
 </head>
 <body>

@@ -35,8 +35,8 @@ try {
 } catch {
   /* dev without prepare: fall back to the settings file */
 }
-export const owner = build.owner || site.owner;
-export const repo = build.repo || site.repo;
+export const owner = build.owner || site.advanced.owner || site.owner;
+export const repo = build.repo || site.advanced.repo || site.repo;
 
 // Pages in menu order. The editor cannot reorder these yet.
 export const pages = [

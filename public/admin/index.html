@@ -61,6 +61,34 @@
     .page-root:has(.content-editor) #page-container { display: none !important; }
     .page-root:has(.content-editor) .content-editor { left: 0 !important; top: 0 !important; }
   }
+
+  /* Forms, in the manner of Payload: a wide column, left-aligned labels, big inputs,
+     list items as quiet cards. Targets Sveltia's internal class names (section.field,
+     .item-wrapper, .item-list): re-check after any upgrade. */
+  .content-editor .content-area .content { padding: 8px 0 80px; }
+  .content-editor section.field { padding: 20px 40px !important; max-width: 1000px; margin: 0 auto; }
+  .content-editor section.field + section.field { border-top: 1px solid hsl(var(--sui-border-color-2-hsl) / 0.5); }
+  .content-editor section.field > header { max-width: none !important; margin-bottom: 10px; }
+  .content-editor section.field > header h4 { font-size: 14px !important; font-weight: 600 !important; letter-spacing: 0 !important; text-transform: none !important; color: hsl(var(--sui-foreground-color-2-hsl)); }
+  .content-editor section.field .field-wrapper { max-width: none !important; }
+  .content-editor section.field > .field-wrapper + *, .content-editor section.field [class*=hint], .content-editor section.field .description { margin-left: 0 !important; padding-left: 0 !important; }
+  .content-editor .content-area .pane > .inner > .header .toolbar { max-width: 1000px !important; padding: 0 40px; }
+  .content-editor input[type=text], .content-editor input[type=url], .content-editor input[type=date], .content-editor input[type=number], .content-editor textarea, .content-editor [role=textbox] {
+    font-size: 16px !important; line-height: 1.5 !important; padding: 10px 12px !important; min-height: 44px;
+    border: 1px solid hsl(var(--sui-border-color-2-hsl)) !important; border-radius: 6px !important;
+    background: hsl(var(--sui-background-color-1-hsl)) !important; box-shadow: none !important; }
+  .content-editor textarea { min-height: 96px; }
+  .content-editor .item-list { display: flex; flex-direction: column; gap: 12px; }
+  .content-editor .item-list > .item-wrapper { border: 1px solid hsl(var(--sui-border-color-2-hsl)) !important; border-radius: 8px !important; background: hsl(var(--sui-background-color-2-hsl)) !important; overflow: hidden; }
+  .content-editor .item-wrapper > .item { background: transparent !important; }
+  .content-editor .item-wrapper > .item > .header { background: hsl(var(--sui-background-color-3-hsl)) !important; min-height: 36px !important; padding: 0 6px !important; border-bottom: 1px solid hsl(var(--sui-border-color-2-hsl) / 0.6); }
+  .content-editor .item-wrapper > .item > .header .button { opacity: 0.55; }
+  .content-editor .item-wrapper > .item > .header:hover .button { opacity: 1; }
+  .content-editor .item-wrapper > .item > .item-body > section.field { padding: 16px 16px 18px !important; border-top: 0 !important; }
+  .content-editor .item-wrapper > .item > .item-body > section.field > header h4 { font-size: 13px !important; color: hsl(var(--sui-foreground-color-4-hsl)); }
+  .content-editor div.toolbar.top { padding: 0 !important; margin-bottom: 10px; background: transparent !important; }
+  .content-editor .button.primary { border-radius: 6px !important; font-weight: 600; }
+  .content-editor .button.secondary, .content-editor .button.tertiary { border-radius: 6px !important; }
 </style>
 </head>
 <body>

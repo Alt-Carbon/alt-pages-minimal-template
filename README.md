@@ -1,4 +1,6 @@
-# The sidebar template
+# alt-pages-minimal-template
+
+The minimal (sidebar) template of The Portfolio Project.
 
 A personal website you own. One Astro site, edited at `/admin`, hosted as a Cloudflare Worker in your own account, with your Goodreads shelf on the Reading page. Part of The Portfolio Project at Alt Carbon; the template is MIT-licensed, so it stays yours after you leave.
 

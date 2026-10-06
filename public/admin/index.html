@@ -16,39 +16,39 @@
   :root {
     --sui-base-hue: 160 !important;
     --sui-font-family-default: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
-    --sui-control-medium-border-radius: 8px !important;
-    --sui-textbox-border-radius: 6px !important;
+    --sui-control-medium-border-radius: 0.5rem !important;   /* shadcn --radius */
+    --sui-textbox-border-radius: calc(0.5rem - 2px) !important;
     --sui-shadow-color: 0 0% 0% !important;
   }
   :root, :root[data-theme="light"] {
     --sui-primary-accent-color: hsl(160 55% 30%) !important;
     --sui-primary-accent-color-light: hsl(160 45% 40%) !important;
-    --sui-foreground-color-1-hsl: 0 0% 5% !important;
-    --sui-foreground-color-2-hsl: 0 0% 12% !important;
-    --sui-foreground-color-3-hsl: 0 0% 22% !important;
-    --sui-foreground-color-4-hsl: 0 0% 40% !important;
+    --sui-foreground-color-1-hsl: 240 10% 3.9% !important;
+    --sui-foreground-color-2-hsl: 240 5.9% 10% !important;
+    --sui-foreground-color-3-hsl: 240 5.3% 26.1% !important;
+    --sui-foreground-color-4-hsl: 240 3.8% 46.1% !important;
     --sui-background-color-1-hsl: 0 0% 100% !important;
-    --sui-background-color-2-hsl: 0 0% 99% !important;
-    --sui-background-color-3-hsl: 0 0% 95% !important;
-    --sui-background-color-4-hsl: 0 0% 91% !important;
-    --sui-background-color-5-hsl: 0 0% 82% !important;
-    --sui-border-color-1-hsl: 0 0% 62% !important;
-    --sui-border-color-2-hsl: 0 0% 76% !important;
+    --sui-background-color-2-hsl: 0 0% 98% !important;
+    --sui-background-color-3-hsl: 240 4.8% 95.9% !important;
+    --sui-background-color-4-hsl: 240 5.9% 90% !important;
+    --sui-background-color-5-hsl: 240 4.9% 83.9% !important;
+    --sui-border-color-1-hsl: 240 4.9% 83.9% !important;
+    --sui-border-color-2-hsl: 240 5.9% 90% !important;
   }
   :root[data-theme="dark"] {
     --sui-primary-accent-color: hsl(160 50% 44%) !important;
     --sui-primary-accent-color-light: hsl(160 45% 54%) !important;
-    --sui-foreground-color-1-hsl: 0 0% 96% !important;
-    --sui-foreground-color-2-hsl: 0 0% 90% !important;
-    --sui-foreground-color-3-hsl: 0 0% 80% !important;
-    --sui-foreground-color-4-hsl: 0 0% 62% !important;
-    --sui-background-color-1-hsl: 0 0% 4% !important;
-    --sui-background-color-2-hsl: 0 0% 7% !important;
-    --sui-background-color-3-hsl: 0 0% 11% !important;
-    --sui-background-color-4-hsl: 0 0% 15% !important;
-    --sui-background-color-5-hsl: 0 0% 24% !important;
-    --sui-border-color-1-hsl: 0 0% 34% !important;
-    --sui-border-color-2-hsl: 0 0% 24% !important;
+    --sui-foreground-color-1-hsl: 0 0% 98% !important;
+    --sui-foreground-color-2-hsl: 240 4.8% 95.9% !important;
+    --sui-foreground-color-3-hsl: 240 5% 64.9% !important;
+    --sui-foreground-color-4-hsl: 240 3.8% 46.1% !important;
+    --sui-background-color-1-hsl: 240 10% 3.9% !important;
+    --sui-background-color-2-hsl: 240 10% 3.9% !important;
+    --sui-background-color-3-hsl: 240 5.9% 10% !important;
+    --sui-background-color-4-hsl: 240 3.7% 15.9% !important;
+    --sui-background-color-5-hsl: 240 5.3% 26.1% !important;
+    --sui-border-color-1-hsl: 240 5.3% 26.1% !important;
+    --sui-border-color-2-hsl: 240 3.7% 15.9% !important;
   }
 
   /* Keep the sidebar while editing. Sveltia hides the page container and opens the
@@ -93,6 +93,8 @@
   .content-editor .button.primary { border-radius: 6px !important; font-weight: 600; }
   .content-editor .button.secondary, .content-editor .button.tertiary { border-radius: 6px !important; }
 
+  /* Greys follow shadcn's zinc scale (ui.shadcn.com, "zinc" base colour) so the editor and
+     the dashboard read as one system; the accent stays Alt Carbon green. */
   /* Craft pass (Emil Kowalski's checklist + Web Interface Guidelines), 5 Oct 2026 */
   /* Sveltia uses `transition: .2s` (all properties). Name the properties, keep them fast. */
   .sui.button, .content-editor input, .content-editor textarea, #page-container [role=treeitem] {

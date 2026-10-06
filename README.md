@@ -55,3 +55,7 @@ The Reading page and the home page draw the shelf in the browser from that JSON,
 | `src/worker/` | The reading sync: Worker entry, the sync object, the Goodreads feed parser |
 | `public/admin/` | The editor's entry page; bundle and config are generated |
 | `test/` | Parser and sync tests |
+
+## Updates
+
+When this template changes, the Alt Pages dashboard opens a pull request on your repository with the changed files. Your content, settings and the values the Deploy button wrote into your configuration are never part of it. Merge it and your site rebuilds in about a minute; close it to skip that update.

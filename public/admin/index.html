@@ -13,11 +13,11 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
 <style>
   /* The editor follows the site: neutral greys (Sveltia tints every grey with its base
-     hue, so the whole scale is redefined here), the system font, one green accent,
+     hue, so the whole scale is redefined here), the system font, one Monsoon Iris accent,
      softer corners. These are Sveltia's own theme variables; !important because its
      stylesheet loads after this one. Check after any Sveltia upgrade. */
   :root {
-    --sui-base-hue: 160 !important;
+    --sui-base-hue: 254 !important;   /* Monsoon Iris */
     /* The dashboard's type scale (shadcn: 14px base, 12px small, 36px controls, 4px rhythm) and font. */
     --sui-font-family-default: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
     --sui-font-size-x-small: 11px !important; --sui-font-size-small: 12px !important; --sui-font-size-default: 14px !important;
@@ -31,8 +31,8 @@
     --sui-shadow-color: 0 0% 0% !important;
   }
   :root, :root[data-theme="light"] {
-    --sui-primary-accent-color: hsl(160 55% 30%) !important;
-    --sui-primary-accent-color-light: hsl(160 45% 40%) !important;
+    --sui-primary-accent-color: #3919A2 !important;   /* Monsoon Iris */
+    --sui-primary-accent-color-light: #704BD7 !important;   /* Majorelle Blue */
     --sui-foreground-color-1-hsl: 240 10% 3.9% !important;
     --sui-foreground-color-2-hsl: 240 5.9% 10% !important;
     --sui-foreground-color-3-hsl: 240 5.3% 26.1% !important;
@@ -46,8 +46,8 @@
     --sui-border-color-2-hsl: 240 5.9% 90% !important;
   }
   :root[data-theme="dark"] {
-    --sui-primary-accent-color: hsl(160 50% 44%) !important;
-    --sui-primary-accent-color-light: hsl(160 45% 54%) !important;
+    --sui-primary-accent-color: #704BD7 !important;
+    --sui-primary-accent-color-light: #9b82e6 !important;
     --sui-foreground-color-1-hsl: 0 0% 98% !important;
     --sui-foreground-color-2-hsl: 240 4.8% 95.9% !important;
     --sui-foreground-color-3-hsl: 240 5% 64.9% !important;
@@ -104,7 +104,7 @@
   .content-editor .button.secondary, .content-editor .button.tertiary { border-radius: 6px !important; }
 
   /* Greys follow shadcn's zinc scale (ui.shadcn.com, "zinc" base colour) so the editor and
-     the dashboard read as one system; the accent stays Alt Carbon green. */
+     the dashboard read as one system; the accent is Monsoon Iris. */
   /* Craft pass (Emil Kowalski's checklist + Web Interface Guidelines), 5 Oct 2026 */
   /* Sveltia uses `transition: .2s` (all properties). Name the properties, keep them fast. */
   .sui.button, .content-editor input, .content-editor textarea, #page-container [role=treeitem] {

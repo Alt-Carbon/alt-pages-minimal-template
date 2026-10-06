@@ -129,6 +129,17 @@
     .sui.button, .content-editor input, .content-editor textarea, #page-container [role=treeitem] { transition-property: background-color, border-color, color, outline-color !important; }
     .sui.button:not(:disabled):active, #page-container [role=treeitem]:active { transform: none; }
   }
+
+  /* Sign-in page: a small mark, a quiet title, two stacked buttons. */
+  .app-shell > .outer > .main > .container { align-items: center; }
+  .app-shell .container > .inner { gap: 0 !important; max-width: 320px; text-align: center; }
+  .app-shell .container > .inner > img.logo { width: 40px !important; height: 40px !important; margin: 0 auto 20px !important; }
+  .app-shell .container > .inner > h1 { font-size: 20px !important; font-weight: 600 !important; letter-spacing: -0.01em; margin: 0 0 24px !important; }
+  .app-shell .container > .inner > .buttons { display: flex; flex-direction: column; gap: 8px; width: 280px; margin: 0 auto; }
+  .app-shell .container > .inner > .buttons .button { height: 36px !important; justify-content: center; }
+  .app-shell .container > .inner > .buttons .button.secondary { background: transparent !important; border-color: transparent !important; color: hsl(var(--sui-foreground-color-4-hsl)) !important; }
+  .app-shell .container > .inner > .buttons .button.secondary:hover { color: hsl(var(--sui-foreground-color-2-hsl)) !important; background: hsl(var(--sui-background-color-3-hsl)) !important; }
+  .app-shell .powered-by { font-size: 12px !important; color: hsl(var(--sui-foreground-color-4-hsl)) !important; opacity: .8; }
 </style>
 </head>
 <body>

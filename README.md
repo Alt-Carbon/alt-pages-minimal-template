@@ -24,35 +24,44 @@ Everything on the site is a file under `content/`. The editor at `/admin` edits 
 
 | File | Page |
 | --- | --- |
-| `content/site.json` | Name, one-liner, social links, photo, Goodreads profile, settings |
+| `content/site.json` | Name, greeting, one-liner, social links, photo, accent colour, Goodreads profile, settings |
 | `content/now.json` | Now |
 | `content/about.json` | About |
 | `content/writing/*.md` | Writing: one Markdown file per piece, footnotes supported |
-| `content/talks.json` | Talks |
-| `content/questions.json` | Questions |
-| `content/reading.json` | Reading: articles and misc. Books come from Goodreads |
+| `content/reading.json` | Reading: the intro line. Books come from Goodreads |
+| `content/research.json` | Research: papers, talks, datasets |
 
 Short text fields accept `*italics*`, `**bold**` and `[links](https://example.com)`. The shapes are defined once in `src/lib/schemas.ts`; the build checks every file against them and fails with a readable message if something is off.
 
 Dates are stored as `YYYY-MM-DD` and shown as `11 Aug 2026`. The page changed most recently gets a dot in the menu, and its date is the site's "Updated" date.
 
+## Search and link previews
+
+Nothing to fill in: the build makes all of it from the content.
+
+- Titles, descriptions (an essay without a blurb gets the opening of its first paragraph), canonical links, Open Graph and Twitter tags, and structured data for search engines.
+- A 1200×630 preview card per page under `/og/`, a favicon (a circle of the accent colour) and an Apple touch icon (`src/lib/cards.ts`).
+- `/rss.xml` (full text), `/sitemap.xml` and `/robots.txt`.
+
+The site's address isn't known at build time, so these carry `https://__origin__` and the Worker replaces it with the address the visitor used. Set Advanced → Site address in the editor only if previews show the wrong address.
+
 ## Reading sync
 
 `src/worker/` is the site's Worker. It reads the public Goodreads shelves named in `content/site.json` (`read` and `currently-reading`) on a schedule, keeps them in KV, and serves them at `/reading/view.json` with covers under `/reading/covers/`. Each run is owned by a Durable Object with its own 12-hour alarm; the first sync and then a weekly one walk every page. With no profile set, the sample shelf in `public/reading/view.json` is served. `GET /reading/status` reports the last run; `POST /reading/sync` asks for one now.
 
-The Reading page and the home page draw the shelf in the browser from that JSON, so books change without a rebuild. Everything else is static HTML.
+The Reading page draws the shelf in the browser from that JSON, so books change without a rebuild, in the style picked under Site settings → Bookshelf style (one module each in `src/scripts/shelf/`; `shared.ts` loads the data and samples each cover's colour, `list.ts` is the plain list used for print). Until a profile is connected, a sample shelf is shown: a real public profile, regenerated with `npm run sample:shelf`. Everything else is static HTML.
 
 ## Layout
 
 | Path | What |
 | --- | --- |
-| `src/pages/` | One file per address: `/`, `/now`, `/reading`, `/about`, `/writing`, `/writing/<slug>`, `/talks`, `/questions`, 404 |
+| `src/pages/` | One file per address: `/`, `/now`, `/reading`, `/about`, `/writing`, `/writing/<slug>`, 404, and the generated `/rss.xml`, `/sitemap.xml`, `/robots.txt`, `/favicon.svg`, `/apple-touch-icon.png`, `/og/*.png` |
 | `src/layouts/Base.astro` | Head, rail, footer |
-| `src/components/` | The rail, the bookshelf, the home page's mini shelf |
+| `src/components/` | The rail, the bookshelf, the home page's mini shelf, a writing row, the theme switcher, a dev-only font switch |
 | `src/scripts/shelf.ts` | Renders books from `/reading/view.json` in the browser |
 | `src/styles/site.css` | The whole stylesheet |
-| `src/lib/` | Content schemas and the loader every page uses |
-| `src/worker/` | The reading sync: Worker entry, the sync object, the Goodreads feed parser |
+| `src/lib/` | Content schemas, the loader every page uses, accent colours, the preview-card renderer |
+| `src/worker/` | The reading sync (Worker entry, sync object, Goodreads feed parser) and the address stamping for pages and feeds |
 | `public/admin/` | The editor's entry page; bundle and config are generated |
 | `test/` | Parser and sync tests |
 

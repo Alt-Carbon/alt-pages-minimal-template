@@ -1,8 +1,10 @@
 ---
-import { day, pages, site, social } from "../lib/content";
+import ThemeSwitch from "./ThemeSwitch.astro";
+import { day, menu, site, social } from "../lib/content";
 interface Props { page: string; fresh: { page: string; date: string } }
 const { page, fresh } = Astro.props;
 const current = page === "essay" ? "writing" : page;
+const pages = await menu();
 ---
 <nav class="rail" aria-label="Site">
   <a class="name" href="/">{site.name}</a>
@@ -17,5 +19,6 @@ const current = page === "essay" ? "writing" : page;
   <div class="foot">
     <Fragment set:html={social()} />
     <p>Updated {day(fresh.date)}</p>
+    <ThemeSwitch />
   </div>
 </nav>

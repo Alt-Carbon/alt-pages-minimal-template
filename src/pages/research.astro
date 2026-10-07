@@ -1,0 +1,30 @@
+---
+// Publications, talks, datasets and reports, newest year first. Hidden from the menu while empty.
+import Base from "../layouts/Base.astro";
+import { inline, markMe, research } from "../lib/content";
+const years = [...new Set(research.items.map((r) => r.year))].sort((a, b) => b - a);
+---
+<Base page="research" title="Research" description={research.intro || undefined}>
+  <h1>Research</h1>
+  {research.intro && <p><Fragment set:html={inline(research.intro)} /></p>}
+  {years.map((y) => (
+    <section class="year" aria-labelledby={`y${y}`}>
+      <h2 id={`y${y}`}>{y}</h2>
+      <ul class="rows pubs">
+        {research.items.filter((r) => r.year === y).map((r) => (
+          <li>
+            <span>
+              {r.url ? <a href={r.url}>{r.title}</a> : <span class="t">{r.title}</span>}
+              {r.authors && <span class="au"><Fragment set:html={markMe(r.authors)} /></span>}
+              {r.venue && <span class="n">{r.venue}</span>}
+              {r.note && <span class="nt"><Fragment set:html={inline(r.note)} /></span>}
+              {r.links.length > 0 && <span class="lnk">{r.links.map((l) => <a href={l.url}>{l.label}</a>)}</span>}
+            </span>
+            <span class="r">{r.kind}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+  {!research.items.length && <p class="aside">Nothing here yet.</p>}
+</Base>

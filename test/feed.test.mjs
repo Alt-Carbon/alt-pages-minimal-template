@@ -8,7 +8,7 @@ const fixture = (name) => readFileSync(new URL(`./fixtures/${name}`, import.meta
 
 const item = (o) => `<item>
 <guid><![CDATA[https://www.goodreads.com/review/show/${o.id}?utm_medium=api]]></guid>
-<title>${o.title}</title>
+${o.link ? `<link><![CDATA[${o.link}]]></link>\n` : ""}<title>${o.title}</title>
 <book_id>${o.id}</book_id>
 <book_image_url><![CDATA[${o.cover ?? ""}]]></book_image_url>
 <book_large_image_url><![CDATA[${o.cover ?? ""}]]></book_large_image_url>
@@ -17,6 +17,7 @@ const item = (o) => `<item>
 <author_name>${o.author}</author_name>
 <isbn>${o.isbn ?? ""}</isbn>
 <user_rating>${o.rating ?? 0}</user_rating>
+<average_rating>${o.avg ?? "0.00"}</average_rating>
 <user_read_at><![CDATA[${o.readAt ?? ""}]]></user_read_at>
 <user_date_added><![CDATA[${o.addedAt ?? ""}]]></user_date_added>
 <user_shelves><![CDATA[${o.shelves ?? ""}]]></user_shelves>
@@ -45,7 +46,7 @@ test("parseFeed normalises one item", () => {
       item({
         id: "42",
         title: "Salt &amp; Stone &#8212; a history",
-        author: "A. Writer",
+        author: "A.   Writer ",
         isbn: "159017416X",
         pages: 528,
         published: 1941,
@@ -54,6 +55,8 @@ test("parseFeed normalises one item", () => {
         readAt: "Tue, 18 Aug 2026 00:00:00 +0000",
         addedAt: "Fri, 11 Sep 2026 10:07:58 -0700",
         shelves: "history, norway",
+        avg: "4.12",
+        link: "https://www.goodreads.com/review/show/9001?utm_medium=api&utm_source=rss",
       }),
     ])
   );
@@ -66,10 +69,12 @@ test("parseFeed normalises one item", () => {
     published: 1941,
     cover: "https://i.gr-assets.com/books/42.jpg",
     rating: 5,
+    avgRating: 4.12,
     readAt: "2026-08-18",
     addedAt: "2026-09-11",
     shelves: ["history", "norway"],
     review: "Private thoughts.",
+    reviewUrl: "https://www.goodreads.com/review/show/9001",
     url: "https://www.goodreads.com/book/show/42",
   });
 });
@@ -88,6 +93,7 @@ test("parseFeed turns blanks and placeholders into null", () => {
   assert.equal(b.published, null);
   assert.equal(b.cover, null);
   assert.equal(b.rating, null);
+  assert.equal(b.avgRating, null);
   assert.equal(b.readAt, null);
   assert.deepEqual(b.shelves, []);
 });
@@ -136,4 +142,13 @@ test("real feed page parses fully", { skip: (() => { try { fixture("read-p1.xml"
     assert.ok(b.title && b.author);
     assert.ok(!b.title.includes("<"));
   }
+});
+
+test("parseFeed reads the average rating and review link from a real feed", () => {
+  const books = parseFeed(fixture("read-p1.xml"));
+  assert.equal(books.length, 100);
+  assert.ok(books.every((b) => b.avgRating === null || (b.avgRating > 0 && b.avgRating <= 5)));
+  assert.ok(books.filter((b) => b.avgRating).length > 90);
+  assert.ok(books.every((b) => b.reviewUrl === null || /^https:\/\/www\.goodreads\.com\/review\/show\/\d+$/.test(b.reviewUrl)));
+  assert.ok(books.filter((b) => b.reviewUrl).length > 90);
 });

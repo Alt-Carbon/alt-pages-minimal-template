@@ -5,10 +5,20 @@
 //  3. Writes public/admin/config.yml, the editor's configuration, and copies the
 //     pinned Sveltia CMS bundle next to it.
 import { execSync } from "node:child_process";
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+
+// Writes only when the content differs, so running this beside `astro dev` doesn't make the
+// dev server reload the page for files that didn't change.
+function write(path, content) {
+  if (existsSync(path) && readFileSync(path).equals(Buffer.from(content))) return;
+  writeFileSync(path, content);
+}
 
 const site = JSON.parse(readFileSync("content/site.json", "utf8"));
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+const accents = JSON.parse(readFileSync("src/lib/accents.json", "utf8"));
+// The kinds offered for Reading links and Research items, shared with src/lib/schemas.ts.
+const { links: LINK_KINDS, research: RESEARCH_KINDS } = JSON.parse(readFileSync("src/lib/kinds.json", "utf8"));
 
 function fromGit() {
   try {
@@ -27,14 +37,19 @@ if (!repo) console.warn("prepare: could not tell which GitHub repository this is
 // The reading sync reads which Goodreads profile to follow from this file.
 const goodreadsId = (/(?:user\/show\/|review\/list(?:_rss)?\/|^)(\d+)/.exec(String(site.goodreads || "").trim()) || [])[1] || null;
 mkdirSync("public/reading", { recursive: true });
-writeFileSync("public/reading/config.json", JSON.stringify({ userId: goodreadsId }));
+write("public/reading/config.json", JSON.stringify({ userId: goodreadsId }));
 
 mkdirSync("src/generated", { recursive: true });
-writeFileSync("src/generated/build.json", JSON.stringify({ owner, repo, builtAt: new Date().toISOString(), template: `sidebar@${pkg.version}` }, null, 2));
+// builtAt only moves when something else in the file changes.
+const buildInfo = { owner, repo, template: `sidebar@${pkg.version}` };
+let prev = {};
+try { prev = JSON.parse(readFileSync("src/generated/build.json", "utf8")); } catch {}
+const same = Object.entries(buildInfo).every(([k, v]) => prev[k] === v);
+write("src/generated/build.json", JSON.stringify({ ...buildInfo, builtAt: same && prev.builtAt ? prev.builtAt : new Date().toISOString() }, null, 2));
 
 // --- editor -----------------------------------------------------------------
 mkdirSync("public/admin", { recursive: true });
-copyFileSync("node_modules/@sveltia/cms/dist/sveltia-cms.js", "public/admin/sveltia-cms.js");
+write("public/admin/sveltia-cms.js", readFileSync("node_modules/@sveltia/cms/dist/sveltia-cms.js"));
 
 const link = `{ label: Link, name: url, widget: string }`;
 const links = (name, label, hint = "", pad = "      ") => `
@@ -68,12 +83,16 @@ singletons:
     fields:
       - { label: Name, name: name, widget: string }
       - { label: Pronunciation, name: pronunciation, widget: string, required: false, hint: "Optional, e.g. /ˈɑː.ʃə ˈraʊ/" }
-      - { label: One-liner, name: oneLiner, widget: string, hint: "The first sentence on the home page." }
+      - { label: Greeting, name: greeting, widget: string, required: false, hint: "Its own line at the top of the home page, e.g. Hi, I am Asha" }
+      - { label: One-liner, name: oneLiner, widget: string, hint: "The first sentence on the home page, under the greeting." }
       - { label: Second line, name: intro, widget: text, required: false, hint: "One or two more sentences under the one-liner." }
       - { label: Place, name: place, widget: string, required: false }
       - { label: Employer, name: employer, widget: string, required: false }
       - { label: Employer link, name: employerUrl, widget: string, required: false }
       - { label: Photo, name: photo, widget: image, required: false, hint: "Shown on the About page." }${links("social", "Social links", "Email first, as mailto:you@example.com")}
+      - { label: Background grain, name: grain, widget: boolean, default: true, required: false, hint: "A faint paper-like grain behind the whole site. Turn off for a plain background." }
+      - { label: Bookshelf style, name: shelf, widget: select, default: journal, hint: "How the Reading page shows your books.", options: [ { label: "Journal: a year-by-year reading log with your reviews", value: journal }, { label: "Gallery: large covers, a book opens in a panel tinted its own colour", value: gallery }, { label: "Stacks: books lying in piles by year, titles readable", value: stacks }, { label: "Turn: 3D books on a dark shelf that turn to face you", value: turn } ] }
+      - { label: Accent colour, name: accent, widget: select, default: aerospace-orange, hint: "Used for focus rings, the update dot, the selected tab and link underlines. Bright neons are deepened in light mode so they stay visible on white.", options: [ ${accents.map((a) => `{ label: "${a.label}", value: ${a.id} }`).join(", ")} ] }
       - { label: Goodreads profile, name: goodreads, widget: string, required: false, hint: "Paste your Goodreads profile address. Your 'read' and 'currently reading' shelves appear on the Reading page. The profile must be public." }
       - label: Advanced
         name: advanced
@@ -82,6 +101,7 @@ singletons:
         required: false
         hint: "Only needed after leaving the company, or if a build cannot read the repository."
         fields:
+          - { label: Site address, name: url, widget: string, required: false, hint: "Leave empty: the site fills in its own address when someone visits. Only set this (e.g. https://asha.example.com) if link previews show the wrong address." }
           - { label: Sign-in service, name: authWorker, widget: string, required: false, hint: "Leave empty while at the company. After leaving, the address of your own copy of the sign-in worker." }
           - { label: GitHub login, name: owner, widget: string, required: false }
           - { label: Repository, name: repo, widget: string, required: false, hint: "owner/name" }
@@ -91,6 +111,7 @@ singletons:
     file: content/now.json
     format: json
     fields:
+      - { label: Show the Now page, name: show, widget: boolean, default: false, required: false, hint: "A Now page says what you are focused on this month. Turn it on only if you will update it every month or two; when off it leaves the menu and the home page." }
       - { label: Updated on, name: updated, widget: datetime, format: YYYY-MM-DD, time_format: false }
       - label: Groups
         name: groups
@@ -107,40 +128,24 @@ singletons:
     format: json
     fields:
       - { label: Paragraphs, name: paragraphs, widget: list, field: { label: Paragraph, name: p, widget: text } }
+      - label: Experience
+        name: experience
+        widget: list
+        required: false
+        collapsed: true
+        summary: "{{fields.role}}, {{fields.org}}"
+        hint: "Newest first. Leave the end date empty for your current role."
+        fields:
+          - { label: Role, name: role, widget: string }
+          - { label: Organisation, name: org, widget: string }
+          - { label: Organisation link, name: orgUrl, widget: string, required: false }
+          - { label: Started, name: start, widget: datetime, format: YYYY-MM, time_format: false, date_format: YYYY-MM }
+          - { label: Ended, name: end, widget: datetime, format: YYYY-MM, time_format: false, date_format: YYYY-MM, required: false }
+          - { label: What you did, name: summary, widget: string, required: false, hint: "One line." }
+      - { label: CV, name: cv, widget: file, required: false, hint: "Optional PDF, linked next to Experience." }
       - { label: Contact, name: contact, widget: text, required: false, hint: "Use [text](mailto:you@example.com) for the email link." }
-      - { label: Facts, name: facts, widget: list, required: false, collapsed: true, summary: "{{fields.label}}: {{fields.value}}", fields: [ { label: Label, name: label, widget: string }, { label: Value, name: value, widget: string } ] }
-      - { label: Short bio, name: shortBio, widget: text, required: false, hint: "Third person, two sentences. Used when someone introduces you." }
-      - { label: Colophon, name: colophon, widget: text, required: false }
-  - name: talks
-    label: Talks
-    icon: mic
-    file: content/talks.json
-    format: json
-    fields:
-          - label: Talks
-            name: items
-            widget: list
-            collapsed: true
-            summary: "{{fields.title}} · {{fields.date}}"
-            fields:
-              - { label: Title, name: title, widget: string }
-              - { label: Date, name: date, widget: datetime, format: YYYY-MM-DD, time_format: false }
-              - { label: Where, name: where, widget: string, required: false }${links("links", "Links", "Slides, recording, and so on", "          ")}
-  - name: questions
-    label: Questions
-    icon: help
-    file: content/questions.json
-    format: json
-    fields:
-          - { label: Introduction, name: intro, widget: text, required: false }
-          - label: Questions
-            name: items
-            widget: list
-            collapsed: true
-            summary: "{{fields.question}}"
-            fields:
-              - { label: Question, name: question, widget: string }
-              - { label: Answer so far, name: answer, widget: text, required: false }
+      - { label: Facts, name: facts, widget: list, required: false, collapsed: true, summary: "{{fields.label}}: {{fields.value}}", hint: "Small details not said elsewhere on the page, e.g. where you are based, your time zone, languages.", fields: [ { label: Label, name: label, widget: string }, { label: Value, name: value, widget: string } ] }
+      - { label: Short bio, name: shortBio, widget: text, required: false, hint: "Third person, two sentences. Shown with a Copy button, for anyone introducing you or listing you as a speaker." }
   - name: reading
     label: Reading
     icon: menu_book
@@ -148,29 +153,27 @@ singletons:
     format: json
     fields:
           - { label: Introduction, name: intro, widget: text, required: false }
-          - label: Articles
-            name: articles
+  - name: research
+    label: Research
+    icon: science
+    file: content/research.json
+    format: json
+    fields:
+          - { label: Introduction, name: intro, widget: text, required: false }
+          - label: Publications and talks
+            name: items
             widget: list
             collapsed: true
-            summary: "{{fields.title}}"
+            summary: "{{fields.year}} · {{fields.title}}"
+            hint: "Papers, preprints, reports, datasets, software and talks. The page and its menu entry appear once there is one item."
             fields:
               - { label: Title, name: title, widget: string }
-              - { label: By, name: by, widget: string, required: false }
-              - { label: Note, name: note, widget: string, required: false }
-              - { label: Read on, name: date, widget: datetime, format: YYYY-MM-DD, time_format: false }
-              - ${link}
-          - label: Misc
-            name: misc
-            widget: list
-            collapsed: true
-            summary: "{{fields.title}}"
-            hint: "Papers, talks, podcasts, newsletters, sites."
-            fields:
-              - { label: Title, name: title, widget: string }
-              - { label: By, name: by, widget: string, required: false }
-              - { label: Kind, name: kind, widget: string, required: false, hint: "Paper, Talk, Podcast, Newsletter, Site" }
-              - { label: Note, name: note, widget: string, required: false }
-              - ${link}
+              - { label: Authors, name: authors, widget: string, required: false, hint: "As cited, e.g. Meera Iyer, Asha Rao, Daniel Okafor. Your own name is put in bold for you." }
+              - { label: Where, name: venue, widget: string, required: false, hint: "Journal, conference, preprint server or event." }
+              - { label: Year, name: year, widget: number, value_type: int }
+              - { label: Kind, name: kind, widget: select, default: Paper, options: [${RESEARCH_KINDS.join(", ")}] }
+              - { label: Link, name: url, widget: string, required: false, hint: "The DOI or main page. The title links here." }
+              - { label: Note, name: note, widget: string, required: false }${links("links", "More links", "PDF, Code, Data, Slides, Recording", "              ")}
 collections:
   - name: writing
     label: Writing
@@ -190,5 +193,5 @@ collections:
       - { label: Draft, name: draft, widget: boolean, default: false, required: false, hint: "Drafts are not published." }
       - { label: Body, name: body, widget: markdown }
 `;
-writeFileSync("public/admin/config.yml", config);
+write("public/admin/config.yml", config);
 console.log(`prepare: repo ${repo || "(unknown)"}, owner ${owner || "(unknown)"}, goodreads ${goodreadsId || "(none)"}, editor config written`);

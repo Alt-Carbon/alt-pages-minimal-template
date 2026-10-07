@@ -1,27 +1,49 @@
 ---
-// The Books tab. Filled by the browser from /reading/view.json so the shelf
-// changes without a rebuild. Without JavaScript it says where the books live.
-interface Props { goodreads: string }
-const { goodreads } = Astro.props;
+// The bookshelf. Filled by the browser from /reading/view.json and /reading/books.json, so books
+// change without a rebuild. `style` picks one of the modules in src/scripts/shelf/; only that one is
+// loaded. Without JavaScript it says where the books live.
+interface Props { goodreads: string; style: string }
+const { goodreads, style } = Astro.props;
 ---
-<div id="shelf" data-goodreads={goodreads}>
+<p class="src" id="shelf-src"></p>
+<div id="shelf" class={`shelf-${style}`} data-goodreads={goodreads} data-style={style} data-dev={import.meta.env.DEV ? "" : undefined}>
   <noscript><p class="src">The shelf needs JavaScript. {goodreads && <a href={goodreads}>See it on Goodreads.</a>}</p></noscript>
 </div>
-<p class="src" id="shelf-src"></p>
+
 <script>
-  import { dayOf, load, renderShelves } from "../scripts/shelf";
+  import { day, load, loadAll, type Style } from "../scripts/shelf/shared";
+  import { renderList } from "../scripts/shelf/list";
+
+  // Each style is its own chunk, with its own CSS; the plain list is the fallback.
+  const styles: Record<string, () => Promise<{ render: Style }>> = {
+    gallery: () => import("../scripts/shelf/gallery"),
+    stacks: () => import("../scripts/shelf/stacks"),
+    turn: () => import("../scripts/shelf/turn"),
+    journal: () => import("../scripts/shelf/journal"),
+  };
+
   const root = document.getElementById("shelf")!;
+  // Dev only: ?shelf=<style> previews another style without changing Site settings.
+  if ("dev" in root.dataset) {
+    const q = new URLSearchParams(location.search).get("shelf");
+    if (q && q in styles) { root.dataset.style = q; root.className = `shelf-${q}`; }
+  }
   const src = document.getElementById("shelf-src")!;
-  const count = document.getElementById("books-count");
   const view = await load();
   if (!view || (!view.read.length && !view.reading.length)) {
-    src.textContent = view?.syncing || root.dataset.goodreads ? "Reading the shelf from Goodreads for the first time. This takes under a minute; reload to see it." : "No Goodreads profile connected yet. Add one in the editor under Site settings.";
+    src.textContent = view?.syncing || root.dataset.goodreads
+      ? "Reading the shelf from Goodreads for the first time. This takes under a minute; reload to see it."
+      : "No Goodreads profile connected yet. Add one in the editor under Site settings.";
   } else {
-    const n = renderShelves(view, root);
-    if (count) count.textContent = String(n);
-    const when = view.syncedAt ? `, ${dayOf(view.syncedAt)}` : "";
+    const shelf = await loadAll(view);
+    let render: Style = renderList;
+    try {
+      render = (await styles[root.dataset.style!]?.())?.render ?? renderList;
+    } catch {}
+    render(shelf, root);
+    const when = view.syncedAt ? `, ${day(view.syncedAt.slice(0, 10))}` : "";
     const where = root.dataset.goodreads ? `<a href="${root.dataset.goodreads}">Goodreads</a>` : "Goodreads";
-    src.innerHTML = (view.sample ? "A sample shelf. Connect a Goodreads profile in the editor to show your own. " : "")
-      + `Synced from my ${where} shelves${when}. A small square marks the ones I would press into your hands.`;
+    // The sample shelf (scripts/sample-shelf.mjs) carries no note; a synced one says when it was synced.
+    src.innerHTML = view.sample ? "" : `Synced from my ${where} shelves${when}.`;
   }
 </script>

@@ -1,21 +1,50 @@
 ---
+// The home page: the intro, what's happening now, then an index of the site. Each section that has
+// something in it gets one row: its name and count on the left, its three latest on the right.
 import Base from "../layouts/Base.astro";
-import MiniShelf from "../components/MiniShelf.astro";
-import { day, inline, now, site, social, writing } from "../lib/content";
-const posts = (await writing()).slice(0, 4);
-const nowLine = now.groups[0]?.items[0];
+import { day, inline, now, research, shown, site, writing } from "../lib/content";
+
+const on = await shown();
+const posts = await writing();
+const res = [...research.items].sort((a, b) => b.year - a.year);
+const nowLine = on.has("now") ? now.groups[0]?.items[0] : undefined;
+
+type Row = { label: string; href: string; count?: number; items: { title: string; href: string; meta: string }[] };
+const rows = [
+  on.has("writing") && { label: "Writing", href: "/writing", count: posts.length, items: posts.slice(0, 3).map((p) => ({ title: p.data.title, href: p.data.link || `/writing/${p.id}`, meta: day(p.data.date) })) },
+  on.has("research") && { label: "Research", href: "/research", count: res.length, items: res.slice(0, 3).map((r) => ({ title: r.title, href: r.url || "/research", meta: `${r.kind} · ${r.year}` })) },
+  // Books come from the shelf data in the browser (the script below), so this row starts empty.
+  on.has("reading") && { label: "Reading", href: "/reading", items: [] },
+].filter(Boolean) as Row[];
 ---
 <Base page="home">
   <h1 class="vh">{site.name}</h1>
-  <p class="lead">{site.oneLiner} {site.intro}</p>
-  <p class="soc"><Fragment set:html={social()} /></p>
+  <div class="lead">
+    {site.greeting && <p>{site.greeting}</p>}
+    <p>{site.oneLiner} {site.intro}</p>
+  </div>
   {nowLine && <p class="nowline"><a href="/now">Now</a><Fragment set:html={inline(nowLine)} /></p>}
-  <div class="sh"><h2>Writing</h2><a class="all" href="/writing">View all</a></div>
-  <ul class="rows">
-    {posts.map((p) => (
-      <li><span><a href={p.data.link || `/writing/${p.id}`}>{p.data.title}</a>{p.data.blurb && <span class="n">{p.data.blurb}</span>}</span><span class="r">{day(p.data.date)}</span></li>
-    ))}
-  </ul>
-  <div class="sh"><h2>Books</h2><a class="all" href="/reading">View all</a></div>
-  <MiniShelf />
+  {rows.length > 0 && (
+    <div class="index">
+      {rows.map((r) => (
+        <section aria-label={r.label} data-row={r.label.toLowerCase()}>
+          <a class="label" href={r.href}>{r.label}{r.count !== undefined && <span>{r.count}</span>}</a>
+          <ul>{r.items.map((i) => <li><a href={i.href}>{i.title}</a><span>{i.meta}</span></li>)}</ul>
+        </section>
+      ))}
+    </div>
+  )}
 </Base>
+
+<script>
+  // The Reading row: what is being read now, then the latest finished, from the shelf's own data.
+  import { load, monthYear } from "../scripts/shelf/shared";
+  const ul = document.querySelector<HTMLElement>('[data-row="reading"] ul');
+  if (ul) {
+    const v = await load();
+    const latest = v ? [...v.reading.map((b) => ({ ...b, now: true })), ...v.read].slice(0, 3) : [];
+    const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    ul.innerHTML = latest.map((b) => `<li><a href="/reading#book-${esc(b.id)}">${esc(b.title)}</a><span>${b.now ? "Reading now" : monthYear(b.readAt)}</span></li>`).join("");
+    if (!latest.length) ul.closest("section")?.remove();
+  }
+</script>

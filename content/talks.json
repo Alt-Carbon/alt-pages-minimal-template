@@ -1,8 +1,0 @@
-{
-  "items": [
-    { "title": "Plain HTML is a feature", "date": "2026-06-20", "where": "Local web meetup", "links": [ { "label": "Slides", "url": "https://example.com" } ] },
-    { "title": "Giving every employee a website", "date": "2026-02-14", "where": "Company all-hands", "links": [ { "label": "Slides", "url": "https://example.com" }, { "label": "Recording", "url": "https://example.com" } ] },
-    { "title": "What a soil sample can and can't tell you", "date": "2025-09-09", "where": "Team offsite", "links": [ { "label": "Slides", "url": "https://example.com" } ] },
-    { "title": "Boring software", "date": "2024-11-23", "where": "Local web meetup", "links": [ { "label": "Recording", "url": "https://example.com" } ] }
-  ]
-}

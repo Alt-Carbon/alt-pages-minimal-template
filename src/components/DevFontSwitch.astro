@@ -1,0 +1,29 @@
+---
+// Dev only (Base.astro includes it under import.meta.env.DEV): a Mac always has San Francisco
+// and Iowan, so the fallback fonts never show there. ?fonts=fallback swaps in Geist + EB Garamond
+// for this tab, across pages; ?fonts=apple or the badge switches back.
+---
+<script is:inline>
+(() => {
+  let mode = "apple";
+  try {
+    const q = new URLSearchParams(location.search).get("fonts");
+    if (q === "fallback" || q === "apple") sessionStorage.setItem("dev-fonts", q);
+    mode = sessionStorage.getItem("dev-fonts") || "apple";
+  } catch {}
+  if (mode !== "fallback") return;
+  document.documentElement.dataset.fonts = "fallback";
+  addEventListener("DOMContentLoaded", () => {
+    const a = document.createElement("a");
+    a.href = "?fonts=apple";
+    a.className = "dev-fonts";
+    a.textContent = "Fallback fonts: Geist + EB Garamond · back to Apple fonts";
+    document.body.append(a);
+  });
+})();
+</script>
+<style is:inline>
+:root[data-fonts="fallback"]{--sans:"Geist Variable",Geist,sans-serif;--serif:"EB Garamond Variable","EB Garamond",Georgia,serif}
+.dev-fonts{position:fixed;right:var(--space-4);bottom:var(--space-4);z-index:99;padding:var(--space-2) var(--space-3);border-radius:var(--radius-full);background:var(--ink);color:var(--bg);font:var(--fs-sm)/var(--lh-none) var(--font-ui);text-decoration:none}
+.dev-fonts::before{content:"";display:inline-block;width:var(--space-2);height:var(--space-2);margin-right:var(--space-2);border-radius:50%;background:var(--accent)}
+</style>

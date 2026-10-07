@@ -13,8 +13,9 @@
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    // /reading/view.json exists as a sample file; the script decides whether to serve it.
-    "run_worker_first": ["/reading/*"]
+    // Pages, feeds and /reading go through the script: it stamps in the site's address and decides
+    // whether to serve the sample /reading/view.json. Images, scripts and the editor skip it.
+    "run_worker_first": ["/*", "!/_astro/*", "!/media/*", "!/og/*", "!/admin/*", "!/favicon.svg", "!/apple-touch-icon.png"]
   },
   "build": { "command": "npm run build" },
   // Reading sync. The object's own alarm is the schedule; the cron is a nudge.

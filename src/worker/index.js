@@ -1,5 +1,5 @@
-// This site's Worker. The pages are static assets, served before this script
-// runs; the script owns /reading, where the owner's Goodreads shelves are kept.
+// This site's Worker. The pages are static assets; the script owns /reading, where the owner's
+// Goodreads shelves are kept, and stamps the site's own address into pages and feeds (see stamp()).
 // The sync itself runs in the ShelfSync Durable Object (sync-object.js).
 //
 // GET  /reading/view.json         the shelf, for the Reading page and the home page
@@ -29,6 +29,23 @@ const json = (body, status = 200, cache = "no-store") =>
     status,
     headers: { "content-type": "application/json; charset=utf-8", "cache-control": cache },
   });
+
+// Pages, feeds and the sitemap are built without knowing the site's address (everyone deploys to
+// their own account and may add a domain later), so they carry ORIGIN_TOKEN wherever an absolute
+// address is needed: canonical links, link previews, RSS, the sitemap. This swaps in the address
+// the visitor used. wrangler.jsonc routes only those files through the Worker; images, scripts and
+// the editor are served straight from the assets.
+const ORIGIN_TOKEN = "https://__origin__";
+const STAMPED = /^(text\/html|text\/plain|application\/xml|text\/xml|application\/rss\+xml|application\/ld\+json)/;
+async function stamp(request, res) {
+  if (!(res.ok || res.status === 404) || !STAMPED.test(res.headers.get("content-type") || "")) return res;
+  const body = await res.text();
+  if (!body.includes(ORIGIN_TOKEN)) return new Response(body, res);
+  const headers = new Headers(res.headers);
+  headers.delete("content-length");
+  headers.delete("etag");
+  return new Response(body.replaceAll(ORIGIN_TOKEN, new URL(request.url).origin), { status: res.status, statusText: res.statusText, headers });
+}
 
 const age = (iso) => (iso ? Date.now() - Date.parse(iso) : Infinity);
 const object = (env, userId) => env.SYNC.get(env.SYNC.idFromName(userId));
@@ -63,7 +80,7 @@ async function image(env, ctx, key, source) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (!url.pathname.startsWith(`${BASE}/`)) return env.ASSETS.fetch(request);
+    if (!url.pathname.startsWith(`${BASE}/`)) return stamp(request, await env.ASSETS.fetch(request));
     const path = url.pathname.slice(BASE.length).replace(/\/$/, "");
 
     const cover = /^\/covers\/(\d+[a-z]?\/\d+)\.jpg$/.exec(path);

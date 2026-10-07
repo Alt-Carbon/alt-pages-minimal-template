@@ -21,7 +21,6 @@ export const WALK_MS = 7 * 86400e3;
 export const RETRY_MS = 3600e3; // after a failed run
 const PROFILE_MS = WALK_MS;
 const VIEW_BOOKS = 200;
-const REVIEW_CHARS = 600;
 
 export const freshMeta = (userId) => ({ version: 3, userId, pages: 0, chunks: {}, profile: null, syncedAt: null, walkedAt: null, lastRun: null });
 
@@ -44,13 +43,8 @@ const summary = (books) => {
   return { count: books.length, years };
 };
 
-const clip = (s) => {
-  if (!s || s.length <= REVIEW_CHARS) return s || null;
-  const cut = s.slice(0, REVIEW_CHARS);
-  return cut.slice(0, Math.max(cut.lastIndexOf(" "), REVIEW_CHARS - 80)).trimEnd() + "…";
-};
-
-// What the page gets per book. Covers are served from this site: /reading/covers/<stamp>/<id>.jpg.
+// What the page gets per book: everything the feed has, reviews in full. Covers are served from
+// this site (/reading/covers/<stamp>/<id>.jpg).
 const slim = (b) => {
   const path = coverPath(b.cover);
   return {
@@ -59,9 +53,15 @@ const slim = (b) => {
     author: b.author,
     cover: path ? `/reading/covers/${path}.jpg` : null,
     rating: b.rating,
+    avgRating: b.avgRating ?? null,
     readAt: b.readAt,
-    shelves: b.shelves.filter((s) => s !== "read" && s !== "currently-reading").slice(0, 2),
-    review: clip(b.review),
+    addedAt: b.addedAt ?? null,
+    shelves: b.shelves.filter((s) => s !== "read" && s !== "currently-reading"),
+    review: b.review ?? null,
+    reviewUrl: b.reviewUrl ?? null,
+    pages: b.pages ?? null,
+    published: b.published ?? null,
+    isbn: b.isbn ?? null,
     url: b.url,
   };
 };

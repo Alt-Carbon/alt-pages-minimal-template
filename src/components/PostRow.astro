@@ -1,0 +1,15 @@
+---
+// One piece of writing in a list: title (marked when it lives on another site), blurb, date.
+import type { CollectionEntry } from "astro:content";
+import { day } from "../lib/content";
+interface Props { post: CollectionEntry<"writing">; blurb?: boolean }
+const { post, blurb = true } = Astro.props;
+const { title, link, date } = post.data;
+---
+<li>
+  <span>
+    <a href={link || `/writing/${post.id}`}>{title}{link && <><span class="ext" aria-hidden="true">↗</span><span class="vh"> (on another site)</span></>}</a>
+    {blurb && post.data.blurb && <span class="n">{post.data.blurb}</span>}
+  </span>
+  <span class="r">{day(date)}</span>
+</li>

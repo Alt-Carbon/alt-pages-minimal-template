@@ -1,15 +1,47 @@
 ---
 import Base from "../layouts/Base.astro";
-import { about, inline, site } from "../lib/content";
+import { about, inline, site, years } from "../lib/content";
 ---
 <Base page="about" title="About" description={about.shortBio}>
   <h1>About</h1>
-  {site.photo
-    ? <div class="photo"><img src={site.photo} alt={`Photo of ${site.name}`}></div>
-    : <div class="photo" role="img" aria-label="Photo placeholder">Photo<br>(optional)</div>}
+  {site.photo && <div class="photo"><img src={site.photo} alt={`Photo of ${site.name}`} width="400" height="400"></div>}
   {about.paragraphs.map((p) => <p><Fragment set:html={inline(p)} /></p>)}
+  {(about.experience.length > 0 || about.cv) && (
+    <section aria-labelledby="xp-h">
+      <div class="sh"><h2 id="xp-h">Experience</h2>{about.cv && <a class="all" href={about.cv}>CV (PDF)</a>}</div>
+      <ul class="xp">
+        {about.experience.map((e) => (
+          <li>
+            <span class="when">{years(e)}</span>
+            <span><span class="role">{e.role}</span>, {e.orgUrl ? <a href={e.orgUrl}>{e.org}</a> : e.org}{e.summary && <span class="sum"><Fragment set:html={inline(e.summary)} /></span>}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
   {about.contact && <><h2>Contact</h2><p><Fragment set:html={inline(about.contact)} /></p></>}
   {about.facts.length > 0 && <dl>{about.facts.map((f) => <><dt>{f.label}</dt><dd><Fragment set:html={inline(f.value)} /></dd></>)}</dl>}
-  {about.shortBio && <><h2>Short bio</h2><p>{about.shortBio}</p></>}
-  {about.colophon && <><h2>Colophon</h2><p><Fragment set:html={inline(about.colophon)} /></p></>}
+  {about.shortBio && (
+    <section class="bio" aria-labelledby="bio-h">
+      <div class="sh"><h2 id="bio-h">Short bio</h2><button class="all copy" type="button" data-copy="bio-text" hidden>Copy</button></div>
+      <p id="bio-text">{about.shortBio}</p>
+    </section>
+  )}
 </Base>
+
+<script>
+  // The Copy button appears only when the clipboard is available, and confirms in place.
+  for (const b of document.querySelectorAll<HTMLButtonElement>("button[data-copy]")) {
+    if (!navigator.clipboard) continue;
+    b.hidden = false;
+    b.addEventListener("click", async () => {
+      const text = document.getElementById(b.dataset.copy!)?.textContent?.trim() ?? "";
+      try {
+        await navigator.clipboard.writeText(text);
+        b.textContent = "Copied ✓";
+        b.classList.add("done");
+        setTimeout(() => { b.textContent = "Copy"; b.classList.remove("done"); }, 1600);
+      } catch {}
+    });
+  }
+</script>

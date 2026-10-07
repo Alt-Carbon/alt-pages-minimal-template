@@ -1,0 +1,50 @@
+---
+// System / Light / Dark. Rendered in the rail (desktop) and the footer (phones); the script below
+// drives every copy. It starts hidden and appears once the script runs, so without JavaScript the
+// site simply follows the OS. The choice is stored in localStorage and applied before first paint
+// by the inline script in Base.astro.
+---
+<div class="theme" role="group" aria-label="Theme" hidden>
+  <button type="button" data-set="system" aria-label="Match system theme" title="System" aria-pressed="true">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="8.5" rx="1.5"/><path d="M6 14h4M8 11.5V14"/></svg>
+  </button>
+  <button type="button" data-set="light" aria-label="Light theme" title="Light" aria-pressed="false">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.75"/><path d="M8 1.75v1.5M8 12.75v1.5M1.75 8h1.5M12.75 8h1.5M3.6 3.6l1.05 1.05M11.35 11.35l1.05 1.05M3.6 12.4l1.05-1.05M11.35 4.65l1.05-1.05"/></svg>
+  </button>
+  <button type="button" data-set="dark" aria-label="Dark theme" title="Dark" aria-pressed="false">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.25 9.6A5.5 5.5 0 0 1 6.4 2.75a5.5 5.5 0 1 0 6.85 6.85z"/></svg>
+  </button>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const current = () => root.dataset.theme ?? "system";
+
+  function sync() {
+    for (const b of document.querySelectorAll<HTMLButtonElement>(".theme button")) {
+      b.setAttribute("aria-pressed", String(b.dataset.set === current()));
+    }
+  }
+
+  function apply(choice: string) {
+    // Theme changes don't animate: switch transitions off for one frame.
+    root.classList.add("theme-switching");
+    if (choice === "system") delete root.dataset.theme;
+    else root.dataset.theme = choice;
+    try {
+      if (choice === "system") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", choice);
+    } catch {}
+    const dark = choice === "dark" || (choice === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+    for (const m of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) m.content = dark ? "#111" : "#fff";
+    sync();
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove("theme-switching")));
+  }
+
+  for (const g of document.querySelectorAll<HTMLElement>(".theme")) g.hidden = false;
+  document.addEventListener("click", (e) => {
+    const b = (e.target as Element).closest<HTMLButtonElement>(".theme button");
+    if (b?.dataset.set) apply(b.dataset.set);
+  });
+  sync();
+</script>

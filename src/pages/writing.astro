@@ -1,13 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
-import { day, writing } from "../lib/content";
+import PostRow from "../components/PostRow.astro";
+import { site, writing } from "../lib/content";
 const posts = await writing();
 ---
-<Base page="writing" title="Writing">
+<Base page="writing" title="Writing" description={`Essays and notes by ${site.name}.`}>
   <h1>Writing</h1>
   <ul class="rows">
-    {posts.map((p) => (
-      <li><span><a href={p.data.link || `/writing/${p.id}`}>{p.data.title}</a>{p.data.blurb && <span class="n">{p.data.blurb}</span>}</span><span class="r">{day(p.data.date)}</span></li>
-    ))}
+    {posts.map((p) => <PostRow post={p} />)}
   </ul>
 </Base>

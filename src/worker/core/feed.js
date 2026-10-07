@@ -46,10 +46,14 @@ function field(xml, from, to, tag) {
 }
 
 const int = (s) => (/^\d+$/.test(s) ? Number(s) : null);
+const num = (s) => (/^\d+(\.\d+)?$/.test(s) && Number(s) > 0 ? Number(s) : null);
+// The review's own page, without Goodreads' tracking parameters.
+const reviewLink = (s) => (/^https:\/\/www\.goodreads\.com\/review\/show\//.test(s) ? s.split("?")[0] : null);
 const day = (s) => {
   const t = s ? Date.parse(s) : NaN;
   return Number.isNaN(t) ? null : new Date(t).toISOString().slice(0, 10);
 };
+const squash = (s) => s.replace(/\s+/g, " ").trim();
 const list = (s) => s.split(",").map((x) => x.trim()).filter(Boolean);
 
 // The review comes as HTML with <br> and links. Kept as plain text, paragraphs
@@ -79,17 +83,20 @@ export function parseFeed(xml) {
     const cover = field(xml, from, to, "book_large_image_url") || field(xml, from, to, "book_image_url");
     books.push({
       id,
-      title: field(xml, from, to, "title"),
-      author: field(xml, from, to, "author_name"),
+      // Goodreads pads some names with runs of spaces.
+      title: squash(field(xml, from, to, "title")),
+      author: squash(field(xml, from, to, "author_name")),
       isbn: field(xml, from, to, "isbn") || null,
       pages: int(field(xml, from, to, "num_pages")),
       published: int(field(xml, from, to, "book_published")),
       cover: cover && !cover.includes("nophoto") ? cover : null,
       rating: int(field(xml, from, to, "user_rating")) || null,
+      avgRating: num(field(xml, from, to, "average_rating")),
       readAt: day(field(xml, from, to, "user_read_at")),
       addedAt: day(field(xml, from, to, "user_date_added")),
       shelves: list(field(xml, from, to, "user_shelves")),
       review: reviewText(field(xml, from, to, "user_review")),
+      reviewUrl: reviewLink(field(xml, from, to, "link") || field(xml, from, to, "guid")),
       url: `https://www.goodreads.com/book/show/${id}`,
     });
   }

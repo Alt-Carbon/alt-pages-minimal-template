@@ -7,4 +7,6 @@ export default defineConfig({
   build: { format: "file" },
   trailingSlash: "never",
   compressHTML: true,
+  // Code in essays: a light and a dark theme; site.css picks one to match the page theme.
+  markdown: { shikiConfig: { themes: { light: "github-light", dark: "github-dark" }, defaultColor: false } },
 });

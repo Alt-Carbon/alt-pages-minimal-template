@@ -56,12 +56,14 @@ const pages = await menu();
     return { x: r.left - list.left, y: r.top - list.top, w: r.width, h: r.height };
   };
   const at = (b: Box, base: Box) => ({ translate: `${b.x - base.x}px ${b.y - base.y}px`, width: `${b.w}px`, height: `${b.h}px` });
-  const move = (a: HTMLElement, from: Box, to: Box, elapsed: number) => {
+  // `stay`: a move that sets off before the page changes holds at the new link until the page arrives,
+  // however slow the network; one on the new page hands back to the resting style when done.
+  const move = (a: HTMLElement, from: Box, to: Box, elapsed: number, stay = false) => {
     a.getAnimations({ subtree: true }).forEach((x) => x.effect && (x.effect as KeyframeEffect).pseudoElement === "::before" && x.cancel());
     const base = home(a);
     const run = a.animate([at(from, base), at(to, base)], { ...timing(), pseudoElement: "::before", fill: "forwards" });
     run.currentTime = elapsed;
-    run.finished.then(() => run.cancel(), () => {}); // the resting style takes over, nothing left inline
+    if (!stay) run.finished.then(() => run.cancel(), () => {}); // the resting style takes over
     return run;
   };
 
@@ -70,7 +72,7 @@ const pages = await menu();
     trip = null;
     if (!a || !to || to === a || quiet()) return;
     const t = (trip = { from: box(a), shown: 0 });
-    const run = move(a, t.from, home(to), 0);
+    const run = move(a, t.from, home(to), 0, true);
     // Note how far the move has got at each frame painted; frames stop while the page swaps, so the
     // last note is what's on screen.
     const tick = () => {

@@ -1,11 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
 import PostRow from "../components/PostRow.astro";
-import { site, writing } from "../lib/content";
+import { inline, site, writing, writingPage } from "../lib/content";
 const posts = await writing();
 ---
-<Base page="writing" title="Writing" description={`Essays and notes by ${site.name}.`}>
+<Base page="writing" title="Writing" description={writingPage.intro || `Essays and notes by ${site.name}.`}>
   <h1>Writing</h1>
+  {writingPage.intro && <p class="deck"><Fragment set:html={inline(writingPage.intro)} /></p>}
   <ul class="rows">
     {posts.map((p) => <PostRow post={p} />)}
   </ul>

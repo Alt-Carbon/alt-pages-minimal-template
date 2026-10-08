@@ -120,8 +120,10 @@ export function groups(books: Book[], by: GroupBy = "year"): [string, Book[]][] 
 export const usesShelves = (books: Book[]) => books.some((b) => b.shelves?.length);
 
 // ---------- cover colours ----------
-// The left edge of a cover is the closest thing to its spine. Sampled in the browser from the small
-// cover; Goodreads' image servers allow it (CORS), and the site's own /reading/covers are same-origin.
+// The left edge of a cover is the closest thing to its spine. Sampled in the visitor's browser from the
+// small cover (Goodreads' image servers allow it; the site's own /reading/covers are same-origin), so it
+// costs the site nothing. Only books that come near the screen are sampled, and the results are kept in
+// this browser, so a second visit downloads and computes nothing for colours.
 export type RGB = [number, number, number];
 export const colour = new Map<string, RGB | null>();
 export const lum = ([r, g, b]: RGB) => { const f = (c: number) => (c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
@@ -132,6 +134,25 @@ const CLOTH: RGB[] = [[31, 42, 54], [184, 134, 43], [228, 222, 208], [39, 53, 77
 export const cloth = (b: Book): RGB => CLOTH[hash(b.title + b.author) % CLOTH.length]!;
 export const rgbOf = (b: Book): RGB => colour.get(b.id) || cloth(b);
 export const paint = (el: HTMLElement, rgb: RGB) => { el.style.setProperty("--c", hex(rgb)); el.style.setProperty("--t", textOn(rgb)); };
+
+const STORE = "shelf-colours-v1";
+try {
+  for (const [id, rgb] of Object.entries(JSON.parse(localStorage.getItem(STORE) || "{}"))) colour.set(id, rgb as RGB);
+} catch {}
+// Written at most once a second while colours arrive, and when the page is left.
+let saving = 0;
+function write() {
+  saving = 0;
+  try {
+    const out: Record<string, RGB> = {};
+    for (const [id, rgb] of colour) if (rgb) out[id] = rgb.map(Math.round) as RGB;
+    localStorage.setItem(STORE, JSON.stringify(out));
+  } catch {}
+}
+function save() {
+  if (!saving) saving = window.setTimeout(write, 1000);
+}
+addEventListener("pagehide", () => { if (saving) { clearTimeout(saving); write(); } });
 
 function sample(b: Book, root: ParentNode): Promise<void> {
   if (!b.cover || colour.has(b.id)) return Promise.resolve();
@@ -151,6 +172,7 @@ function sample(b: Book, root: ParentNode): Promise<void> {
         for (let i = 0; i < d.length; i += 4) { r += d[i]!; g += d[i + 1]!; bl += d[i + 2]!; k++; }
         const rgb: RGB = [r / k, g / k, bl / k];
         colour.set(b.id, rgb);
+        save();
         for (const el of root.querySelectorAll<HTMLElement>(`[data-id="${b.id}"]`)) paint(el, rgb);
       } catch {}
       res();
@@ -159,10 +181,35 @@ function sample(b: Book, root: ParentNode): Promise<void> {
     img.src = small(b.cover)!;
   });
 }
-// Six at a time; elements with data-id="<book id>" get --c and --t as each colour arrives.
-export async function sampleAll(books: Book[], root: ParentNode = document) {
-  const q = [...books];
-  await Promise.all(Array.from({ length: 6 }, async () => { while (q.length) await sample(q.shift()!, root); }));
+
+// Paints every [data-id] element under root: known colours at once, the rest as each book comes within
+// 300px of the screen (four downloads at a time). Elements receive --c and --t.
+let watch: IntersectionObserver | null = null;
+const books = new Map<string, Book>();
+const queue: [Book, ParentNode][] = [];
+let running = 0;
+function pump() {
+  while (running < 4 && queue.length) {
+    const [b, root] = queue.shift()!;
+    running++;
+    sample(b, root).finally(() => { running--; pump(); });
+  }
+}
+export function sampleAll(list: Book[], root: ParentNode = document) {
+  for (const b of list) books.set(b.id, b);
+  watch ??= new IntersectionObserver((seen) => {
+    for (const e of seen) {
+      if (!e.isIntersecting) continue;
+      watch!.unobserve(e.target);
+      const b = books.get((e.target as HTMLElement).dataset.id!);
+      if (b && !colour.has(b.id)) { queue.push([b, root]); pump(); }
+    }
+  }, { rootMargin: "300px" });
+  for (const el of root.querySelectorAll<HTMLElement>("[data-id]")) {
+    const rgb = colour.get(el.dataset.id!);
+    if (rgb) paint(el, rgb);
+    else watch.observe(el);
+  }
 }
 
 // ---------- misc ----------

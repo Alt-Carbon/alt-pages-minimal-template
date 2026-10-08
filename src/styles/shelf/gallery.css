@@ -169,4 +169,9 @@ dialog.shelf-gallery-qv::backdrop{background:transparent}
 @media print{
  .shelf-gallery .controls,.shelf-gallery-qv{display:none!important}
  .shelf-gallery .yr{position:static}
+ /* Covers stay on screen: in print each book is one line, title then author and stars. */
+ .shelf-gallery .grid{display:block;columns:2;column-gap:var(--space-6)}
+ .shelf-gallery .card{display:block;break-inside:avoid;padding:2px 0;transform:none!important;box-shadow:none!important}
+ .shelf-gallery .card .cv{display:none}
+ .shelf-gallery .card .meta{display:flex;flex-wrap:wrap;gap:0 var(--space-2);align-items:baseline}
 }

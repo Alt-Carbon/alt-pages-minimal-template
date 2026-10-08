@@ -61,6 +61,8 @@ export const RESEARCH_KINDS = kinds.research as [string, ...string[]];
 
 const oldLink = { title: z.string().min(1), by: z.string().default(""), note: z.string().default(""), url: z.string().min(1) };
 export const Reading = z.object({
+  // On by default: until a Goodreads profile is set, the page shows a sample shelf (the editor warns).
+  show: z.boolean().default(true),
   intro: z.string().default(""),
   // Things worth reading, watching or listening to, newest first when dated.
   links: z.array(z.object({
@@ -72,6 +74,9 @@ export const Reading = z.object({
   articles: z.array(z.object({ ...oldLink, date: isoDay })).default([]),
   misc: z.array(z.object({ ...oldLink, kind: z.string().default("") })).default([]),
 });
+
+// The Writing page itself (its pieces are content/writing/*.md).
+export const WritingPage = z.object({ intro: z.string().default("") });
 
 export const Research = z.object({
   intro: z.string().default(""),

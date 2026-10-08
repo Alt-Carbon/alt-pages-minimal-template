@@ -6,9 +6,10 @@ import nowJson from "../../content/now.json";
 import aboutJson from "../../content/about.json";
 import readingJson from "../../content/reading.json";
 import researchJson from "../../content/research.json";
+import writingJson from "../../content/writing.json";
 import pkg from "../../package.json";
 import accents from "./accents.json";
-import { About, LINK_KINDS, Now, Reading, Research, Site } from "./schemas";
+import { About, LINK_KINDS, Now, Reading, Research, Site, WritingPage } from "./schemas";
 
 // Typographic quotes: ' and " become curly in everything people type, links and markup aside.
 // Applied to every string in the content files except addresses and ids.
@@ -48,6 +49,7 @@ if (!reading.links.length) {
 }
 reading.links.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 export const research = load<ReturnType<typeof Research.parse>>("research", Research, researchJson);
+export const writingPage = load<ReturnType<typeof WritingPage.parse>>("writing", WritingPage, writingJson);
 
 // The site's address. It isn't known at build time (everyone deploys to their own account and may add
 // a domain later), so built pages carry ORIGIN_TOKEN and the Worker swaps in the address the visitor
@@ -90,7 +92,7 @@ export async function shown(): Promise<Set<string>> {
   const on = new Set(["about"]);
   if ((await writing()).length) on.add("writing");
   if (research.items.length) on.add("research");
-  on.add("reading"); // always: a sample shelf shows until a Goodreads profile is connected
+  if (reading.show) on.add("reading"); // a sample shelf shows until a Goodreads profile is connected
   if (now.show) on.add("now");
   return on;
 }

@@ -15,6 +15,15 @@ function write(path, content) {
 }
 
 const site = JSON.parse(readFileSync("content/site.json", "utf8"));
+const reading = JSON.parse(readFileSync("content/reading.json", "utf8"));
+
+// Until a Goodreads profile is set, the Reading page shows a sample shelf (Otis Chandler's: he founded
+// Goodreads). The editor says so in the two places it matters, and the warning goes away on the build
+// after a profile is added. YAML double-quoted strings, so no raw double quotes inside.
+const SAMPLE = !String(site.goodreads || "").trim() && reading.show !== false;
+const sampleWarning = SAMPLE
+  ? "⚠️ Not set yet, so your Reading page is showing a sample shelf: Otis Chandler’s (he founded Goodreads), not yours. Paste your profile address here, or turn the Reading page off under Reading. "
+  : "";
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 const accents = JSON.parse(readFileSync("src/lib/accents.json", "utf8"));
 // The kinds offered for Reading links and Research items, shared with src/lib/schemas.ts.
@@ -93,7 +102,7 @@ singletons:
       - { label: Background grain, name: grain, widget: boolean, default: true, required: false, hint: "A faint paper-like grain behind the whole site. Turn off for a plain background." }
       - { label: Bookshelf style, name: shelf, widget: select, default: journal, hint: "How the Reading page shows your books.", options: [ { label: "Journal: a year-by-year reading log with your reviews", value: journal }, { label: "Gallery: large covers, a book opens in a panel tinted its own colour", value: gallery }, { label: "Stacks: books lying in piles by year, titles readable", value: stacks }, { label: "Turn: 3D books on a dark shelf that turn to face you", value: turn } ] }
       - { label: Accent colour, name: accent, widget: select, default: aerospace-orange, hint: "Used for focus rings, the update dot, the selected tab and link underlines. Bright neons are deepened in light mode so they stay visible on white.", options: [ ${accents.map((a) => `{ label: "${a.label}", value: ${a.id} }`).join(", ")} ] }
-      - { label: Goodreads profile, name: goodreads, widget: string, required: false, hint: "Paste your Goodreads profile address. Your 'read' and 'currently reading' shelves appear on the Reading page. The profile must be public." }
+      - { label: Goodreads profile, name: goodreads, widget: string, required: false, hint: "${sampleWarning}Paste your Goodreads profile address. Your 'read' and 'currently reading' shelves appear on the Reading page. The profile must be public." }
       - label: Advanced
         name: advanced
         widget: object
@@ -152,7 +161,15 @@ singletons:
     file: content/reading.json
     format: json
     fields:
+          - { label: Show the Reading page, name: show, widget: boolean, default: true, required: false, hint: "${SAMPLE ? "⚠️ No Goodreads profile yet, so this page shows a sample shelf (Otis Chandler’s, the founder of Goodreads), not your books. Add your profile under Site settings, or turn this off to hide the page. " : ""}Off hides the page from the menu and the home page." }
           - { label: Subtitle, name: intro, widget: text, required: false, hint: "One line under the Reading title. Also the page's description in search results and link previews." }
+  - name: writing_page
+    label: Writing page
+    icon: edit_note
+    file: content/writing.json
+    format: json
+    fields:
+          - { label: Subtitle, name: intro, widget: text, required: false, hint: "A line under the Writing title. Also the page's description in search results and link previews. Your pieces are under Writing." }
   - name: research
     label: Research
     icon: science

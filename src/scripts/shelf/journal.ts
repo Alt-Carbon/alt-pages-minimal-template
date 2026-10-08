@@ -6,7 +6,7 @@
 // filter chips, the year links and the search (hits are marked); ?filter=, ?q= and #book-<id> are the
 // URL. Everything renders once; filtering and search only hide, show and re-mark.
 import "../../styles/shelf/journal.css";
-import { type Book, type Shelf, type Style, day, esc, excerpt, groups, links, monthYear, n, paragraphs, reduced, sampleAll, short, stars } from "./shared";
+import { type Book, type Shelf, type Style, day, esc, excerpt, groups, links, monthYear, n, paragraphs, reduced, short, stars } from "./shared";
 
 type Group = { key: string; books: Book[] };
 type Entry = { b: Book; pull: string; body: string; flat: string; long: boolean; mins: number; hay: string };
@@ -112,12 +112,16 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
     if (longest) rows.push(["Longest", `<a href="#book-${longest.id}" title="${esc(longest.title)}">${esc(short(longest.title))}</a><small>${n(longest.pages!)} pp</small>`]);
     return `<dl class="ledger">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
   }
+  // The month strip is a chart: screen readers get one summary line; pointer users get a tooltip per
+  // month and a click to jump there. Keyboard users have the year menu and the entries themselves (one
+  // button per month was 12 tab stops a year, each narrower than a 24px target).
   function monthStrip(g: Group) {
-    return `<div class="months" role="group" aria-label="Books finished each month in ${g.key}">${MONTHS_LONG.map((name, k) => {
+    const counts = MONTHS_LONG.map((name, k) => [name, inMonth(g, k).length] as const);
+    const read = counts.filter(([, c]) => c).map(([name, c]) => `${name} ${c}`).join(", ");
+    return `<div class="months" role="img" aria-label="${esc(`Books finished each month in ${g.key}: ${read || "none dated"}`)}">${MONTHS_LONG.map((name, k) => {
       const bs = inMonth(g, k).reverse();
-      const label = `${name} ${g.key}: ${bs.length ? `${plural(bs.length, "book")}, ${bs.map((b) => short(b.title)).join("; ")}` : "none"}`;
-      return `<button type="button" class="mo" data-y="${g.key}" data-m="${k}" data-n="${bs.length}" aria-label="${esc(label)}"${bs.length ? "" : ' disabled tabindex="-1"'}>`
-        + `<span class="dots">${bs.map((b) => `<i class="dot" data-book="${b.id}"></i>`).join("")}</span><span class="l" aria-hidden="true">${name[0]}</span></button>`;
+      return `<span class="mo" data-y="${g.key}" data-m="${k}" data-n="${bs.length}">`
+        + `<span class="dots">${bs.map((b) => `<i class="dot" data-book="${b.id}"></i>`).join("")}</span><span class="l">${name[0]}</span></span>`;
     }).join("")}</div>`;
   }
   function entryHTML(b: Book, k: number, undated: boolean) {
@@ -318,8 +322,6 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
   const moOf = (ev: Event) => (ev.target as Element).closest<HTMLElement>(".mo");
   view.addEventListener("pointerover", (ev) => { const mo = moOf(ev); if (mo && ev.pointerType !== "touch") showTip(mo); }, { signal });
   view.addEventListener("pointerout", (ev) => { const mo = moOf(ev); if (mo && !mo.contains(ev.relatedTarget as Node)) hideTip(); }, { signal });
-  view.addEventListener("focusin", (ev) => { const mo = moOf(ev); if (mo && mo.matches(":focus-visible")) showTip(mo); }, { signal });
-  view.addEventListener("focusout", (ev) => { if (moOf(ev)) hideTip(); }, { signal });
 
   // Reading now: covers tilt toward the pointer (up to 12°) and lift; they settle back when it leaves.
   if (matchMedia("(hover: hover)").matches && !reduced()) {
@@ -406,6 +408,6 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
 
   apply();
   if (/^#book-/.test(location.hash)) (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(() => openHash(false)));
-  sampleAll(shelf.books, root);
+  // No colour sampling here: every cover is an image in front of its placeholder colour.
   return shelf.books.length;
 };

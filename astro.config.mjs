@@ -7,6 +7,7 @@ export default defineConfig({
   build: { format: "file" },
   trailingSlash: "never",
   compressHTML: true,
-  // Code in essays: a light and a dark theme; site.css picks one to match the page theme.
-  markdown: { shikiConfig: { themes: { light: "github-light", dark: "github-dark" }, defaultColor: false } },
+  // Code in essays: a light and a dark theme; site.css picks one to match the page theme. The light one
+  // is GitHub's high-contrast theme: the plain one's orange is too faint on the code background.
+  markdown: { shikiConfig: { themes: { light: "github-light-high-contrast", dark: "github-dark" }, defaultColor: false } },
 });

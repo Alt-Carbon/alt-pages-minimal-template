@@ -1,7 +1,34 @@
 ---
+// Not found: "404" in block letters (the solid blocks in ink, their shadow lines in grey), one line and
+// the way home, all centred. The art is decoration; the heading says it in words.
 import Base from "../layouts/Base.astro";
+
+const ART = [
+  "██╗  ██╗ ██████╗ ██╗  ██╗",
+  "██║  ██║██╔═████╗██║  ██║",
+  "███████║██║██╔██║███████║",
+  "╚════██║████╔╝██║╚════██║",
+  "     ██║╚██████╔╝     ██║",
+  "     ╚═╝ ╚═════╝      ╚═╝",
+];
+// Runs of the same kind of character, so the blocks and their shadows can be coloured apart.
+const runs = (line: string) => line.match(/█+|[^█]+/g) ?? [];
 ---
-<Base page="404" title="Not found">
-  <h1>Not found</h1>
-  <p>There is no page at this address. <a href="/">Back to the start.</a></p>
+<Base page="404" title="Page not found">
+  <div class="lost">
+    <h1 class="vh">Page not found</h1>
+    <pre class="ascii404" aria-hidden="true">{ART.map((line) => <span class="ln">{runs(line).map((r) => r[0] === "█" ? <b>{r}</b> : r)}</span>)}</pre>
+    <p class="lost-line">This page wandered off. It may have moved, or the link may have a typo.</p>
+    <a class="lost-home" href="/">← Back to home</a>
+  </div>
 </Base>
+
+<style>
+  .lost{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .ascii404{width:max-content;max-width:100%;margin:0 0 var(--space-8);font:clamp(13px,4.6vw,30px)/1 var(--mono);color:var(--mute);letter-spacing:0;white-space:pre;overflow:hidden;text-align:left}
+  .ascii404 .ln{display:block}
+  .ascii404 b{font-weight:400;color:var(--ink)}
+  .lost-line{font-size:var(--fs-lg);color:var(--mute);margin:0 0 var(--space-6);max-width:32em;text-wrap:balance}
+  .lost-home{font:var(--fs-sm)/var(--lh-none) var(--font-ui);color:var(--ink);text-decoration:none;padding:var(--space-2) var(--space-4);border:1px solid var(--rule);border-radius:var(--radius-full);transition:background-color var(--ease),border-color var(--ease)}
+  @media(hover:hover){.lost-home:hover{background:var(--hover);border-color:var(--accent)}}
+</style>

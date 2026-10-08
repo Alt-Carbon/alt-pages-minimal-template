@@ -53,7 +53,7 @@
  --fs-lg:15px;    /* notes, footnotes */
  --fs-base:16px;  /* body */
  --fs-xl:20px;    /* small headings, the name */
- --fs-lead:clamp(19px,2.5vw + 9px,22px); /* the home intro: 22px, easing to 19px on phones */
+ --fs-lead:clamp(19px,2.5vw + 9px,22px); /* the home letter: 22px, easing to 19px on phones */
  --fs-2xl:24px;   /* h2 */
  --fs-3xl:clamp(34px,5vw,42px); /* h1 */
  --lh-none:1;--lh-tight:1.15;--lh-snug:1.3;--lh-medium:1.4;--lh-normal:1.5;--lh-body:1.6;
@@ -138,27 +138,14 @@ dt{padding-top:var(--space-4)}
 .skip:focus{left:var(--space-4)}
 
 /* Home */
-.home .lead{font-family:var(--font-display);font-size-adjust:var(--display-adjust);font-size:var(--fs-lead);line-height:var(--lh-medium);letter-spacing:var(--track-display)}
-.home .lead p{margin:0;text-wrap:balance}
-.home .lead p+p{margin-top:var(--space-2)}
-.nowline{font:var(--fs-md)/var(--lh-normal) var(--font-ui);color:var(--mute);margin:var(--space-4) 0 0}
-.nowline a{color:var(--ink);font-weight:600;text-decoration:none;margin-right:var(--space-2)}
-.sh{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);margin:var(--space-12) 0 var(--space-3)}
-.sh h2{margin:0}
-.all{flex:none;font:var(--fs-sm)/var(--lh-none) var(--font-ui);color:var(--ink);text-decoration:none;padding:var(--space-2) var(--space-3);border:1px solid var(--rule);border-radius:var(--radius-full);transition:background-color var(--ease),border-color var(--ease)}
-@media(hover:hover){.all:hover{background:var(--hover);border-color:var(--mute)}}
-.all::after{content:" →";color:var(--mute)}
-/* Home: an index of the site, one row per section (name and count, then its three latest). */
-.index{margin-top:var(--space-10);border-top:1px solid var(--rule)}
-.index section{display:grid;grid-template-columns:8rem 1fr;gap:var(--space-4);padding:var(--space-4) 0;border-bottom:1px solid var(--rule)}
-.index .label{font:500 var(--fs-md)/var(--lh-body) var(--font-ui);color:var(--ink);text-decoration:none}
-.index .label span{margin-left:var(--space-2);color:var(--mute);font-weight:400;font-variant-numeric:tabular-nums}
-.index ul{list-style:none;padding:0;margin:0}
-.index li{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-4);margin:0 0 var(--space-1);padding:0}
-.index li:last-child{margin-bottom:0}
-.index li a{text-decoration:none}
-@media(hover:hover){.index li a:hover,.index .label:hover{text-decoration-line:underline;text-decoration-color:var(--accent)}}
-.index li span{flex:none;font:var(--fs-sm)/var(--lh-body) var(--font-ui);color:var(--mute);font-variant-numeric:tabular-nums}
+/* Home: a letter in the display face (greeting, intro, where they worked, what they're doing now), then
+   a "Recent" list mixing writing, research and books by date. */
+.home .letter{max-width:var(--measure)}
+.home .letter p{font-family:var(--font-display);font-size-adjust:var(--display-adjust);font-size:var(--fs-lead);line-height:var(--lh-normal);letter-spacing:var(--track-display);margin:0 0 var(--space-5);text-wrap:pretty}
+.home .letter .hi{font-size:var(--fs-2xl);margin-bottom:var(--space-3)}
+.home .recent{margin-top:var(--space-10)}
+.home .recent h2{font:var(--fs-sm) var(--font-ui);font-size-adjust:none;font-weight:400;color:var(--mute);text-transform:uppercase;letter-spacing:var(--track-caps);margin:0 0 var(--space-2)}
+.home .recent .rows{margin-bottom:0}
 /* About: Experience. */
 .xp{list-style:none;padding:0;margin:0 0 var(--space-6);border-top:1px solid var(--rule)}
 .xp li{display:grid;grid-template-columns:7rem 1fr;gap:var(--space-4);margin:0;padding:var(--space-3) 0;border-bottom:1px solid var(--rule)}
@@ -268,7 +255,6 @@ footer a{margin-right:var(--space-3);text-decoration:none}
  .rows li{display:block}
  .rows .r{display:block;margin-top:2px;white-space:normal}
  .xp li{grid-template-columns:1fr;gap:0}
- .index section{grid-template-columns:1fr;gap:var(--space-2)}
  .photo{width:96px;margin-left:var(--space-5)}
 }
 @media print{
@@ -277,9 +263,9 @@ footer a{margin-right:var(--space-3);text-decoration:none}
  .theme{display:none!important}
  body{background:#fff!important;color:#000!important;font-size:11pt}
  nav.rail,.skip,.more,.src,.all,.theme{display:none!important}
- .wrap{padding:0 0 0 var(--space-4)!important}
+ .wrap{padding:0 var(--space-4)!important}
  main{max-width:none!important}
- .plist{display:block}
+ .xp li,dl>*{break-inside:avoid}
  .rows li{break-inside:avoid}
  footer{display:block;margin-top:var(--space-6)}
 }

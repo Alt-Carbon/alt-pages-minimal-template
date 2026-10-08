@@ -13,16 +13,22 @@
 
 /* Control bar: sticks to the top of the window (nothing of the site's is sticky above it; on phones the
    rail is a static strip at the top). No background at rest; once stuck (journal.ts adds .stuck) it gets
-   a soft blurred one and a hairline. Filters sit in a recessed track with a raised chip, like the theme
+   a soft blurred band and a hairline across the whole content area, from the rail's line to the window's
+   right edge, both fading out at the ends like the rail's line. They are fixed to the window (the bar is
+   at the top whenever they show) so they can be wider than the column without widening the page. Filters sit in a recessed track with a raised chip, like the theme
    switcher; the year menu shows the year in view and jumps to any year. */
 .shelf-journal .sentinel{height:1px;margin-bottom:-1px}
 .shelf-journal .bar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:var(--space-2) var(--space-3);margin:var(--space-6) calc(-1 * var(--space-4)) 0;padding:var(--space-2) var(--space-4);
- border-bottom:1px solid transparent;transition:background-color .2s,border-color .2s}
-.shelf-journal .bar.stuck{background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(12px) saturate(1.2);-webkit-backdrop-filter:blur(12px) saturate(1.2);border-bottom-color:var(--rule)}
+ isolation:isolate}
+.shelf-journal .bar::before,.shelf-journal .bar::after{content:"";position:fixed;left:calc(var(--rail-w) - 9px);right:0;pointer-events:none;opacity:0;transition:opacity .2s}
+.shelf-journal .bar::before{top:0;height:var(--bar);z-index:-1;background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(12px) saturate(1.2);-webkit-backdrop-filter:blur(12px) saturate(1.2);
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.shelf-journal .bar::after{top:calc(var(--bar) - 1px);height:1px;background:linear-gradient(90deg,transparent 0%,var(--rule) 10%,var(--rule) 90%,transparent 100%)} /* the rail line's own fade */
+.shelf-journal .bar.stuck::before,.shelf-journal .bar.stuck::after{opacity:1}
 .shelf-journal .strip{display:flex;align-items:center;gap:var(--space-2);flex:1;min-width:0}
 .shelf-journal .chips{display:flex;flex:none;padding:2px;border-radius:var(--radius-full);background:var(--hover)}
 .shelf-journal .chip{font:var(--fs-sm)/var(--space-5) var(--font-ui);padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);color:var(--mute);white-space:nowrap;transition:color var(--ease),background-color .2s,box-shadow .2s}
-.shelf-journal .chip span{margin-left:var(--space-1);font-variant-numeric:tabular-nums;opacity:.65}
+.shelf-journal .chip span{margin-left:var(--space-1);font-variant-numeric:tabular-nums;color:var(--mute)}
 .shelf-journal .chip[aria-pressed="true"]{color:var(--ink);background:var(--raised);box-shadow:0 0 0 1px var(--rule),0 1px 2px rgba(0,0,0,.08)}
 .shelf-journal .ymenu{display:inline-flex;flex:none}
 .shelf-journal .years{font:var(--fs-sm)/var(--space-5) var(--font-ui);color:var(--ink);background-color:var(--hover);border:0;border-radius:var(--radius-full);padding:var(--space-1) var(--space-8) var(--space-1) var(--space-3);cursor:pointer;font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none;
@@ -61,7 +67,7 @@
 
 /* Month strip: one dot per book finished. */
 .shelf-journal .months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));margin:var(--space-5) -3px 0}
-.shelf-journal .mo{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--space-1) 0 2px;border-radius:4px;cursor:default}
+.shelf-journal .mo{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--space-1) 0 2px;border-radius:4px}
 .shelf-journal .mo[data-n]:not([data-n="0"]){cursor:pointer}
 .shelf-journal .mo .dots{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;height:calc(var(--max) * 9px + 3px);width:100%;padding-bottom:5px;border-bottom:1px solid var(--rule)}
 .shelf-journal .mo .dot{width:6px;height:6px;border-radius:50%;background:var(--ink);transition:background-color .2s,scale .3s var(--spring)}
@@ -71,7 +77,6 @@
 .shelf-journal .mo.hot .dot:not(.off){background:var(--accent);scale:1.2}
 .shelf-journal .mo.hot .l{color:var(--ink)}
 .shelf-journal .mo.hot .dots{border-bottom-color:var(--accent)}
-.shelf-journal .mo:focus-visible{outline-offset:0}
 
 .shelf-journal-tip{position:fixed;z-index:30;left:0;top:0;width:max-content;max-width:260px;padding:var(--space-2) var(--space-3) 11px;border-radius:var(--radius-md);background:var(--raised);color:var(--ink);
  box-shadow:0 0 0 1px var(--rule),0 14px 34px -14px rgba(0,0,0,.35);font:var(--fs-sm)/var(--lh-snug) var(--font-ui);pointer-events:none;opacity:0;translate:0 4px;transition:opacity .14s ease,translate .22s cubic-bezier(.2,.8,.2,1)}
@@ -180,6 +185,8 @@
 }
 /* Phones: the bar is full bleed and wraps (search first), the date margin goes, the covers scroll. */
 @media(max-width:820px){
+ .shelf-journal .bar::before,.shelf-journal .bar::after{left:0} /* no rail beside the page here */
+ .shelf-journal .bar::before{-webkit-mask-image:none;mask-image:none} /* edge to edge: a solid background, only the line fades */
  .shelf-journal .bar{margin-left:calc(-1 * var(--space-5));margin-right:calc(-1 * var(--space-5));padding-left:var(--space-5);padding-right:var(--space-5)}
  .shelf-journal .e::before{inset:0 calc(-1 * var(--space-2))}
 }
@@ -216,4 +223,24 @@
 @media(prefers-reduced-motion:reduce){
  .shelf-journal *,.shelf-journal *::before,.shelf-journal *::after,.shelf-journal-tip{transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
-@media print{.shelf-journal .bar,.shelf-journal .fin,.shelf-journal-tip{display:none}}
+/* Print: a compact log. Every book as one line (title, author, stars, date, pages); no covers, quotes,
+   reviews, charts or controls, so 600 books print in pages rather than hundreds. */
+@media print{
+ .shelf-journal .bar,.shelf-journal .fin,.shelf-journal-tip,.shelf-journal .months,.shelf-journal .shown{display:none}
+ .shelf-journal .yr{display:block;padding-top:var(--space-6)}
+ .shelf-journal .rail{position:static;display:flex;align-items:baseline;gap:var(--space-4);margin-bottom:var(--space-2)}
+ .shelf-journal .num{font-size:28pt}
+ .shelf-journal .ledger{display:flex;gap:var(--space-3);border:0;margin:0;font-size:9pt}
+ .shelf-journal .ledger>div{border:0;padding:0;gap:4px}
+ .shelf-journal .nowgrid{display:block;columns:2}
+ .shelf-journal .nb .cv{display:none}
+ .shelf-journal .nb .nt{margin:0}
+ .shelf-journal .nowgrid li{break-inside:avoid;margin-bottom:var(--space-1)}
+ .shelf-journal .e,.shelf-journal .e.first{display:grid;grid-template-columns:5em minmax(0,1fr);align-items:baseline;column-gap:var(--space-3);padding:var(--space-1) 0;border-top:1px solid #ddd;break-inside:avoid}
+ .shelf-journal .e>.cv,.shelf-journal .pq,.shelf-journal .rv,.shelf-journal .acts,.shelf-journal .e .vh{display:none}
+ .shelf-journal .d{grid-column:1;grid-row:1;padding:0}
+ .shelf-journal .e .hd{grid-column:2;grid-row:1}
+ .shelf-journal .hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 var(--space-3)}
+ .shelf-journal .t{font-size:11pt}
+ .shelf-journal .by,.shelf-journal .meta{margin:0;font-size:9pt}
+}

@@ -1,50 +1,57 @@
 ---
-// The home page: the intro, what's happening now, then an index of the site. Each section that has
-// something in it gets one row: its name and count on the left, its three latest on the right.
+// The home page: a short letter, then what's recent. The letter is the greeting and intro from Site
+// settings, a line written from Experience (where they worked before), and the first line of Now.
+// The feed mixes the latest writing, research and finished books by date; books join in the browser
+// from the shelf's own data (the script below). Nothing here needs filling in separately.
 import Base from "../layouts/Base.astro";
-import { day, inline, now, research, shown, site, writing } from "../lib/content";
+import { about, currentRole, day, inline, now, research, shown, site, writing } from "../lib/content";
 
 const on = await shown();
 const posts = await writing();
 const res = [...research.items].sort((a, b) => b.year - a.year);
 const nowLine = on.has("now") ? now.groups[0]?.items[0] : undefined;
 
-type Row = { label: string; href: string; count?: number; items: { title: string; href: string; meta: string }[] };
-const rows = [
-  on.has("writing") && { label: "Writing", href: "/writing", count: posts.length, items: posts.slice(0, 3).map((p) => ({ title: p.data.title, href: p.data.link || `/writing/${p.id}`, meta: day(p.data.date) })) },
-  on.has("research") && { label: "Research", href: "/research", count: res.length, items: res.slice(0, 3).map((r) => ({ title: r.title, href: r.url || "/research", meta: `${r.kind} · ${r.year}` })) },
-  // Books come from the shelf data in the browser (the script below), so this row starts empty.
-  on.has("reading") && { label: "Reading", href: "/reading", items: [] },
-].filter(Boolean) as Row[];
+// "Before Alt Carbon, I worked at X and Y." from the ended roles, each organisation once, in order.
+const past = about.experience.filter((e) => e.end && e.org !== currentRole?.org).map((e) => e.org);
+const orgs = past.filter((o, i) => past.indexOf(o) === i);
+const list = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+const before = orgs.length ? `${currentRole ? `Before ${currentRole.org}, I` : "I"} worked at ${list(orgs)}.` : "";
+
+// The feed before books. Research has only a year, so it sorts as mid-year.
+type Item = { title: string; href: string; section: string; meta: string; sort: string };
+const feed: Item[] = [
+  ...(on.has("writing") ? posts.map((p) => ({ title: p.data.title, href: p.data.link || `/writing/${p.id}`, section: "Writing", meta: day(p.data.date), sort: p.data.date.toISOString().slice(0, 10) })) : []),
+  ...(on.has("research") ? res.map((r) => ({ title: r.title, href: r.url || "/research", section: `Research · ${r.kind}`, meta: String(r.year), sort: `${r.year}-06-30` })) : []),
+].sort((a, b) => b.sort.localeCompare(a.sort));
 ---
 <Base page="home">
   <h1 class="vh">{site.name}</h1>
-  <div class="lead">
-    {site.greeting && <p>{site.greeting}</p>}
+  <div class="letter">
+    <p class="hi">{site.greeting || `Hi, I’m ${site.name.split(" ")[0]}.`}</p>
     <p>{site.oneLiner} {site.intro}</p>
+    {before && <p>{before}</p>}
+    {nowLine && <p>Right now: <Fragment set:html={inline(nowLine.charAt(0).toLowerCase() + nowLine.slice(1))} /> <a href="/now">Know more</a></p>}
   </div>
-  {nowLine && <p class="nowline"><a href="/now">Now</a><Fragment set:html={inline(nowLine)} /></p>}
-  {rows.length > 0 && (
-    <div class="index">
-      {rows.map((r) => (
-        <section aria-label={r.label} data-row={r.label.toLowerCase()}>
-          <a class="label" href={r.href}>{r.label}{r.count !== undefined && <span>{r.count}</span>}</a>
-          <ul>{r.items.map((i) => <li><a href={i.href}>{i.title}</a><span>{i.meta}</span></li>)}</ul>
-        </section>
-      ))}
-    </div>
-  )}
+  <section class="recent" aria-labelledby="recent-h" hidden={!feed.length && !on.has("reading")}>
+    <h2 id="recent-h">Recent</h2>
+    <ul class="rows" data-reading={on.has("reading") ? "" : undefined}>
+      {feed.slice(0, 6).map((i) => <li data-sort={i.sort}><span><a href={i.href}>{i.title}</a><span class="n">{i.section}</span></span><span class="r">{i.meta}</span></li>)}
+    </ul>
+  </section>
 </Base>
 
 <script>
-  // The Reading row: what is being read now, then the latest finished, from the shelf's own data.
-  import { load, monthYear } from "../scripts/shelf/shared";
-  const ul = document.querySelector<HTMLElement>('[data-row="reading"] ul');
+  // Finished books join the feed by the date they were read, from the site's own shelf data.
+  import { load, monthYear, short, esc } from "../scripts/shelf/shared";
+  const ul = document.querySelector<HTMLElement>(".recent ul[data-reading]");
   if (ul) {
     const v = await load();
-    const latest = v ? [...v.reading.map((b) => ({ ...b, now: true })), ...v.read].slice(0, 3) : [];
-    const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    ul.innerHTML = latest.map((b) => `<li><a href="/reading#book-${esc(b.id)}">${esc(b.title)}</a><span>${b.now ? "Reading now" : monthYear(b.readAt)}</span></li>`).join("");
-    if (!latest.length) ul.closest("section")?.remove();
+    const rows = [...ul.querySelectorAll<HTMLElement>("li")].map((li) => ({ sort: li.dataset.sort!, html: li.outerHTML }));
+    const books = (v?.read ?? []).filter((b) => b.readAt).slice(0, 6).map((b) => ({
+      sort: b.readAt!,
+      html: `<li data-sort="${b.readAt}"><span><a href="/reading#book-${esc(b.id)}">${esc(short(b.title))}</a><span class="n">Reading · ${esc(b.author)}</span></span><span class="r">${monthYear(b.readAt)}</span></li>`,
+    }));
+    ul.innerHTML = [...rows, ...books].sort((a, b) => b.sort.localeCompare(a.sort)).slice(0, 6).map((r) => r.html).join("");
+    ul.closest("section")!.hidden = !ul.children.length;
   }
 </script>

@@ -3,8 +3,7 @@
 // years, or the person's Goodreads shelves) is a pile, big groups split into piles of at most
 // twelve. Hover or focus slides a book out and names it in the caption; pressing it opens a side
 // drawer with the cover, the facts and the full review, with prev/next through the pile.
-import "../../styles/shelf/stacks.css";
-import { type Book, type GroupBy, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, human, links, n, paragraphs, reduced, rgbOf, sampleAll, short, stars, surname, textOn, usesShelves } from "./shared";
+import { type Book, type GroupBy, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, human, links, n, pageSignal, paragraphs, reduced, rgbOf, sampleAll, short, stars, surname, textOn, usesShelves } from "./shared";
 
 type Pile = { name: string; part: number; parts: number; books: Book[] };
 const PER = 12;
@@ -111,7 +110,7 @@ export const render: Style = (shelf, root) => {
     for (const el of tight) { const r = ratio(el); if (r < 0.995) el.style.setProperty("--fs", `${Math.max(MINF, base(el) * r * 0.96).toFixed(1)}px`); }
   }
   let fitRaf = 0;
-  addEventListener("resize", () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fit); });
+  addEventListener("resize", () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fit); }, { signal: pageSignal() });
   document.fonts?.ready.then(fit);
 
   // ---------- interactions on the table ----------
@@ -256,7 +255,7 @@ export const render: Style = (shelf, root) => {
   q.addEventListener("keydown", (e) => { if (e.key === "Escape" && q.value) { e.preventDefault(); q.value = ""; query = ""; draw(); } });
   addEventListener("keydown", (e) => {
     if (e.key === "/" && !dlg.open && !/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName || "")) { e.preventDefault(); q.focus(); }
-  });
+  }, { signal: pageSignal() });
 
   // ---------- go ----------
   draw(true);
@@ -271,6 +270,6 @@ export const render: Style = (shelf, root) => {
     open(p, b);
   }
   fromHash();
-  addEventListener("hashchange", fromHash);
+  addEventListener("hashchange", fromHash, { signal: pageSignal() });
   return books.length;
 };

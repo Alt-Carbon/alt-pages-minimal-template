@@ -51,6 +51,11 @@
 .shelf-journal .yr{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);column-gap:var(--gap);padding:var(--space-12) 0 var(--space-5);border-top:1px solid var(--rule);scroll-margin-top:var(--bar)}
 .shelf-journal .yr:first-child{border-top:0}
 .shelf-journal .rail{position:sticky;top:calc(var(--bar) + var(--space-8));align-self:start}
+/* As a year scrolls into view (journal.ts adds .seen) its numeral settles in and its stars fill. */
+.shelf-journal .yr:not(.seen) .num{opacity:0;translate:0 4px}
+.shelf-journal .num{transition:opacity var(--dur-page) var(--ease-out),translate var(--dur-page) var(--ease-out)}
+.shelf-journal .yr:not(.seen) .stars{clip-path:inset(0 100% 0 0)}
+.shelf-journal .stars{transition:clip-path .5s var(--ease-out)}
 .shelf-journal .num{font-size:clamp(72px,8vw,104px);line-height:.86;font-weight:var(--display-weight);letter-spacing:-.025em;font-variant-numeric:oldstyle-nums proportional-nums;margin-left:-.05em;white-space:nowrap} /* the journal's one size of its own */
 .shelf-journal .num.word{font-style:italic;font-size:clamp(48px,5vw,64px);line-height:1;letter-spacing:-.02em}
 .shelf-journal .rail .note{margin-top:var(--space-3);font:var(--fs-sm)/var(--lh-medium) var(--font-ui);color:var(--mute);text-wrap:pretty}

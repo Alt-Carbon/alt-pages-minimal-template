@@ -43,15 +43,21 @@ const feed: Item[] = [
 <script>
   // Finished books join the feed by the date they were read, from the site's own shelf data.
   import { load, monthYear, short, esc } from "../scripts/shelf/shared";
+  document.addEventListener("astro:page-load", async () => {
   const ul = document.querySelector<HTMLElement>(".recent ul[data-reading]");
   if (ul) {
     const v = await load();
-    const rows = [...ul.querySelectorAll<HTMLElement>("li")].map((li) => ({ sort: li.dataset.sort!, html: li.outerHTML }));
-    const books = (v?.read ?? []).filter((b) => b.readAt).slice(0, 6).map((b) => ({
-      sort: b.readAt!,
-      html: `<li data-sort="${b.readAt}"><span><a href="/reading#book-${esc(b.id)}">${esc(short(b.title))}</a><span class="n">Reading · ${esc(b.author)}</span></span><span class="r">${monthYear(b.readAt)}</span></li>`,
-    }));
-    ul.innerHTML = [...rows, ...books].sort((a, b) => b.sort.localeCompare(a.sort)).slice(0, 6).map((r) => r.html).join("");
+    // Each book goes in before the first row older than it; the rows already there stay as they are.
+    for (const b of (v?.read ?? []).filter((b) => b.readAt).slice(0, 6)) {
+      const li = document.createElement("li");
+      li.className = "in";
+      li.dataset.sort = b.readAt!;
+      li.innerHTML = `<span><a href="/reading#book-${esc(b.id)}">${esc(short(b.title))}</a><span class="n">Reading · ${esc(b.author)}</span></span><span class="r">${monthYear(b.readAt)}</span>`;
+      const older = [...ul.children].find((row) => ((row as HTMLElement).dataset.sort || "") < b.readAt!);
+      ul.insertBefore(li, older ?? null);
+    }
+    while (ul.children.length > 6) ul.lastElementChild!.remove();
     ul.closest("section")!.hidden = !ul.children.length;
   }
+  });
 </script>

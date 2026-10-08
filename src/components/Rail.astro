@@ -9,6 +9,8 @@ const pages = await menu();
 <nav class="rail" aria-label="Site">
   <a class="name" href="/">{site.name}</a>
   <div class="links">
+    {/* The current page's highlight is a layer behind the link (::before in site.css); the script below
+        slides it from the old page's link to this one. The link text itself stays still. */}
     <a href="/" aria-current={current === "home" ? "page" : undefined}>Home</a>
     {pages.map((p) => (
       <a href={p.href} aria-current={current === p.id ? "page" : undefined}>
@@ -22,3 +24,66 @@ const pages = await menu();
     <ThemeSwitch />
   </div>
 </nav>
+
+<script>
+  // The highlight slides from the old page's link to the new one as one move. It sets off on the click,
+  // while the next page loads. The screen then freezes on the last frame while the page swaps (the view
+  // transition), so the new link's highlight resumes the move from that frame, not from the clock: the
+  // hand-over can't be seen however long the swap takes. Positions are relative to the link list, so
+  // page scroll doesn't matter.
+  type Box = { x: number; y: number; w: number; h: number };
+  let trip: { from: Box; shown: number } | null = null;
+
+  const links = () => [...document.querySelectorAll<HTMLAnchorElement>("nav.rail .links a")];
+  const current = () => links().find((a) => a.hasAttribute("aria-current"));
+  const path = (u: string | URL) => new URL(u, location.href).pathname.replace(/\.html$|\/$/, "") || "/";
+  const quiet = () => matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.dataset.motion === "off";
+  const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  // The minifier may write 220ms as .22s, so read either unit.
+  const ms = (v: string) => (v.endsWith("ms") ? parseFloat(v) : parseFloat(v) * 1000) || 220;
+  const timing = () => ({ duration: ms(token("--dur-state")), easing: token("--ease-out") || "ease-out" });
+
+  // Where a link's highlight is drawn right now, mid-move included.
+  const box = (a: HTMLElement): Box => {
+    const r = a.getBoundingClientRect(), list = a.parentElement!.getBoundingClientRect();
+    const s = getComputedStyle(a, "::before");
+    const [tx = 0, ty = 0] = s.translate.split(" ").map((v) => parseFloat(v) || 0); // "none", "0px" or "x y"
+    return { x: r.left - list.left + tx, y: r.top - list.top + ty, w: parseFloat(s.width) || r.width, h: parseFloat(s.height) || r.height };
+  };
+  // Where a link's highlight sits at rest.
+  const home = (a: HTMLElement): Box => {
+    const r = a.getBoundingClientRect(), list = a.parentElement!.getBoundingClientRect();
+    return { x: r.left - list.left, y: r.top - list.top, w: r.width, h: r.height };
+  };
+  const at = (b: Box, base: Box) => ({ translate: `${b.x - base.x}px ${b.y - base.y}px`, width: `${b.w}px`, height: `${b.h}px` });
+  const move = (a: HTMLElement, from: Box, to: Box, elapsed: number) => {
+    a.getAnimations({ subtree: true }).forEach((x) => x.effect && (x.effect as KeyframeEffect).pseudoElement === "::before" && x.cancel());
+    const base = home(a);
+    const run = a.animate([at(from, base), at(to, base)], { ...timing(), pseudoElement: "::before", fill: "forwards" });
+    run.currentTime = elapsed;
+    run.finished.then(() => run.cancel(), () => {}); // the resting style takes over, nothing left inline
+    return run;
+  };
+
+  document.addEventListener("astro:before-preparation", (e) => {
+    const a = current(), to = links().find((l) => path(l.href) === path(e.to));
+    trip = null;
+    if (!a || !to || to === a || quiet()) return;
+    const t = (trip = { from: box(a), shown: 0 });
+    const run = move(a, t.from, home(to), 0);
+    // Note how far the move has got at each frame painted; frames stop while the page swaps, so the
+    // last note is what's on screen.
+    const tick = () => {
+      if (trip !== t || run.playState !== "running") return;
+      t.shown = Number(run.currentTime) || 0;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  document.addEventListener("astro:after-swap", () => {
+    const a = current(), t = trip;
+    trip = null;
+    if (!a || !t) return;
+    if (t.shown < timing().duration) move(a, t.from, home(a), t.shown);
+  });
+</script>

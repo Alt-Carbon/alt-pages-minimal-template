@@ -1,10 +1,10 @@
 ---
 // System / Light / Dark. Rendered in the rail (desktop) and the footer (phones); the script below
-// drives every copy. It starts hidden and appears once the script runs, so without JavaScript the
-// site simply follows the OS. The choice is stored in localStorage and applied before first paint
+// drives every copy. Without JavaScript it is hidden (the noscript style), and the site follows the OS. The choice is stored in localStorage and applied before first paint
 // by the inline script in Base.astro.
 ---
-<div class="theme" role="group" aria-label="Theme" hidden>
+<noscript><style>.theme{display:none}</style></noscript>
+<div class="theme" role="group" aria-label="Theme">
   <button type="button" data-set="system" aria-label="Match system theme" title="System" aria-pressed="true">
     <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="8.5" rx="1.5"/><path d="M6 14h4M8 11.5V14"/></svg>
   </button>
@@ -41,10 +41,12 @@
     requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove("theme-switching")));
   }
 
-  for (const g of document.querySelectorAll<HTMLElement>(".theme")) g.hidden = false;
+  // Pages change in place (ClientRouter), so this runs on every page; the click handler is bound once.
   document.addEventListener("click", (e) => {
     const b = (e.target as Element).closest<HTMLButtonElement>(".theme button");
     if (b?.dataset.set) apply(b.dataset.set);
   });
-  sync();
+  document.addEventListener("astro:page-load", () => {
+    sync();
+  });
 </script>

@@ -4,6 +4,13 @@
 // loaded. Without JavaScript it says where the books live.
 interface Props { goodreads: string; style: string }
 const { goodreads, style } = Astro.props;
+// Every style's CSS is part of the Reading page itself (each is scoped to its own .shelf-<style>).
+// Imported from the style modules instead, it would be injected at runtime and dropped when the
+// router swaps the head, so a second visit to Reading came back unstyled.
+import "../styles/shelf/journal.css";
+import "../styles/shelf/gallery.css";
+import "../styles/shelf/stacks.css";
+import "../styles/shelf/turn.css";
 ---
 <p class="src" id="shelf-src"></p>
 <div id="shelf" class={`shelf-${style}`} data-goodreads={goodreads} data-style={style} data-dev={import.meta.env.DEV ? "" : undefined}>
@@ -14,7 +21,7 @@ const { goodreads, style } = Astro.props;
   import { day, load, loadAll, type Style } from "../scripts/shelf/shared";
   import { renderList } from "../scripts/shelf/list";
 
-  // Each style is its own chunk, with its own CSS; the plain list is the fallback.
+  // Each style's script is its own chunk (its CSS is imported above); the plain list is the fallback.
   const styles: Record<string, () => Promise<{ render: Style }>> = {
     gallery: () => import("../scripts/shelf/gallery"),
     stacks: () => import("../scripts/shelf/stacks"),
@@ -22,7 +29,10 @@ const { goodreads, style } = Astro.props;
     journal: () => import("../scripts/shelf/journal"),
   };
 
-  const root = document.getElementById("shelf")!;
+  // Pages change in place (ClientRouter), so this runs whenever the Reading page is shown.
+  document.addEventListener("astro:page-load", async () => {
+  const root = document.getElementById("shelf");
+  if (!root) return;
   // Dev only: ?shelf=<style> previews another style without changing Site settings.
   if ("dev" in root.dataset) {
     const q = new URLSearchParams(location.search).get("shelf");
@@ -46,4 +56,5 @@ const { goodreads, style } = Astro.props;
     // The sample shelf (scripts/sample-shelf.mjs) carries no note; a synced one says when it was synced.
     src.innerHTML = view.sample ? "" : `Synced from my ${where} shelves${when}.`;
   }
+  });
 </script>

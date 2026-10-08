@@ -4,6 +4,7 @@ import "@fontsource-variable/geist/wght.css";
 import "@fontsource-variable/geist/wght-italic.css";
 import "@fontsource-variable/eb-garamond/wght.css";
 import "../styles/site.css";
+import { ClientRouter } from "astro:transitions";
 import Rail from "../components/Rail.astro";
 import DevFontSwitch from "../components/DevFontSwitch.astro";
 import ThemeSwitch from "../components/ThemeSwitch.astro";
@@ -40,8 +41,10 @@ const ld = page === "essay"
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111" media="(prefers-color-scheme: dark)">
+<!-- A real load fades the content up (html.fresh); page changes use the view transition instead. -->
+<script is:inline>document.documentElement.classList.add("fresh");addEventListener("astro:before-swap",function(){document.documentElement.classList.remove("fresh")},{once:true})</script>
 <!-- Runs before first paint: applies a theme picked in the switcher, so there is no flash. -->
-<script is:inline>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark"){document.documentElement.dataset.theme=t;document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=t==="dark"?"#111":"#fff"})}}catch(e){}</script>
+<script is:inline data-astro-rerun>try{if(location.search.indexOf("motion=off")>-1)document.documentElement.dataset.motion="off";var t=localStorage.getItem("theme");if(t==="light"||t==="dark"){document.documentElement.dataset.theme=t;document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=t==="dark"?"#111":"#fff"})}}catch(e){}</script>
 <Fragment set:html={`<style>:root{--accent-light:${accent.light};--accent-dark:${accent.dark}}</style>`} />
 <title>{fullTitle}</title>
 <meta name="description" content={desc}>
@@ -69,15 +72,17 @@ const ld = page === "essay"
 {repo && <meta name="portfolio-repo" content={repo}>}
 <link rel="alternate" type="application/json" href="/reading/view.json" title="Reading">
 {import.meta.env.DEV && <DevFontSwitch />}
+<!-- Pages change in place: the rail stays, the content fades up (see "Page changes" in site.css). -->
+<ClientRouter fallback="none" />
 </head>
 <body class={bodyClass}>
 <a class="skip" href="#content">Skip to content</a>
 <div class="wrap">
-  <Rail page={page} fresh={fresh} />
-  <main id="content" class:list={["page", { home: page === "home", essay: page === "essay", reading: page === "reading" }]}>
+  <Rail page={page} fresh={fresh} transition:name="rail" transition:animate="none" />
+  <main id="content" transition:name="main" transition:animate="none" class:list={["page", { home: page === "home", essay: page === "essay", reading: page === "reading" }]}>
     <slot />
   </main>
-  <footer><Fragment set:html={social()} /> · Updated {day(fresh.date)}<ThemeSwitch /></footer>
+  <footer transition:name="foot" transition:animate="none"><Fragment set:html={social()} /> · Updated {day(fresh.date)}<ThemeSwitch /></footer>
 </div>
 </body>
 </html>

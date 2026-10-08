@@ -2,8 +2,7 @@
 // books standing spine-out, one turned to show its cover. Hover or focus turns a book and widens its
 // slot; a click opens the details inline under the row. Rows: Favourites (five stars), Reading now,
 // then each year. Deep links: #book-<id>.
-import "../../styles/shelf/turn.css";
-import { type Book, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, links, n, paragraphs, reduced, rgbOf, sampleAll, short, stars, surname, textOn } from "./shared";
+import { type Book, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, links, n, pageSignal, paragraphs, reduced, rgbOf, sampleAll, short, stars, surname, textOn } from "./shared";
 
 type Row = { key: string; label: string; books: Book[] };
 type Spring = { a: number; v: number; to: number; W: number; D: number; bx: HTMLElement };
@@ -349,13 +348,13 @@ export const render: Style = (shelf, root) => {
     // Esc with focus outside the rows (after "Read full review" hid its button, say) still closes the open panel.
     if (e.key === "Escape" && openAt && !rowsEl.contains(document.activeElement)) { const st = stageOf(openAt.key); if (st) closePanel(st); }
   };
-  addEventListener("keydown", onKey);
+  addEventListener("keydown", onKey, { signal: pageSignal() });
   if (onResize) removeEventListener("resize", onResize);
   onResize = () => { if (!root.isConnected) return; const s = phone() ? 0.72 : 1; if (s !== SCALE) draw(); else $$(".stage", rowsEl).forEach(navState); };
-  addEventListener("resize", onResize);
+  addEventListener("resize", onResize, { signal: pageSignal() });
   if (onHash) removeEventListener("hashchange", onHash);
   onHash = () => { const id = hashId(); if (id && id !== openAt?.id) goTo(id); };
-  addEventListener("hashchange", onHash);
+  addEventListener("hashchange", onHash, { signal: pageSignal() });
 
   draw();
   const id = hashId();

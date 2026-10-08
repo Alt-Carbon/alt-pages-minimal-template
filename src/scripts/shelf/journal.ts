@@ -5,8 +5,7 @@
 // pull quote, long reviews cut to an excerpt that "Read more" expands in place. A sticky bar holds the
 // filter chips, the year links and the search (hits are marked); ?filter=, ?q= and #book-<id> are the
 // URL. Everything renders once; filtering and search only hide, show and re-mark.
-import "../../styles/shelf/journal.css";
-import { type Book, type Shelf, type Style, day, esc, excerpt, groups, links, monthYear, n, paragraphs, reduced, short, stars } from "./shared";
+import { type Book, type Shelf, type Style, day, esc, excerpt, groups, links, monthYear, n, pageSignal, paragraphs, reduced, short, stars } from "./shared";
 
 type Group = { key: string; books: Book[] };
 type Entry = { b: Book; pull: string; body: string; flat: string; long: boolean; mins: number; hay: string };
@@ -74,6 +73,7 @@ let ctrl: AbortController | null = null;
 export const render: Style = (shelf: Shelf, root: HTMLElement) => {
   ctrl?.abort();
   ctrl = new AbortController();
+  pageSignal().addEventListener("abort", () => ctrl?.abort(), { once: true });
   const { signal } = ctrl;
   document.querySelectorAll(".shelf-journal-tip").forEach((t) => t.remove());
 
@@ -409,5 +409,9 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
   apply();
   if (/^#book-/.test(location.hash)) (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(() => openHash(false)));
   // No colour sampling here: every cover is an image in front of its placeholder colour.
+  // Years settle in as they scroll into view (see .seen in journal.css); the first is in view already.
+  const seen = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { e.target.classList.add("seen"); seen.unobserve(e.target); } }, { rootMargin: "0px 0px -10% 0px" });
+  for (const y of $$(".yr")) seen.observe(y);
+  signal.addEventListener("abort", () => seen.disconnect());
   return shelf.books.length;
 };

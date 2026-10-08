@@ -31,6 +31,7 @@ import { about, inline, site, years } from "../lib/content";
 
 <script>
   // The Copy button appears only when the clipboard is available, and confirms in place.
+  document.addEventListener("astro:page-load", () => {
   for (const b of document.querySelectorAll<HTMLButtonElement>("button[data-copy]")) {
     if (!navigator.clipboard) continue;
     b.hidden = false;
@@ -38,10 +39,11 @@ import { about, inline, site, years } from "../lib/content";
       const text = document.getElementById(b.dataset.copy!)?.textContent?.trim() ?? "";
       try {
         await navigator.clipboard.writeText(text);
-        b.textContent = "Copied ✓";
+        b.innerHTML = `Copied <svg class="tick" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.5 5 9l4.5-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         b.classList.add("done");
         setTimeout(() => { b.textContent = "Copy"; b.classList.remove("done"); }, 1600);
       } catch {}
     });
   }
+  });
 </script>

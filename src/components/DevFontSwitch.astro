@@ -13,7 +13,8 @@
   } catch {}
   if (mode !== "fallback") return;
   document.documentElement.dataset.fonts = "fallback";
-  addEventListener("DOMContentLoaded", () => {
+  addEventListener("astro:page-load", () => {
+    if (document.querySelector(".dev-fonts")) return;
     const a = document.createElement("a");
     a.href = "?fonts=apple";
     a.className = "dev-fonts";

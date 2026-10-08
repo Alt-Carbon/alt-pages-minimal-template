@@ -11,7 +11,8 @@
          --font-text: what you read (body, notes, book titles);
          --font-ui: what you scan or press (the rail, tabs, buttons, dates, captions).
    Size: --fs-* steps only. Headings scale fluidly with clamp() instead of breakpoints.
-   Space: --space-N is N × 4px. Margins go below things, not above, except section breaks. */
+   Space: --space-N is N × 4px. Margins go below things, not above, except section breaks.
+   Motion: --dur-* and --ease-* only; see the Motion block in :root and the rules at the end. */
 
 /* Theme: the OS decides (color-scheme: light dark) unless the visitor picked one in the switcher;
    an inline script in Base.astro sets data-theme before first paint, so there is no flash.
@@ -65,7 +66,15 @@
 
  --radius-sm:6px;--radius-md:8px;--radius-lg:12px;--radius-full:999px;
  --rail-w:264px;--measure:600px;
- --ease:.15s ease}
+
+ /* Motion: three curves and three durations, used everywhere. Hover feedback is quick, a state change
+    is unhurried, a page change slower still. Anything that moves collapses to an instant change under
+    prefers-reduced-motion (see the end of this file). */
+ --ease-out:cubic-bezier(.2,.8,.2,1);     /* things arriving or responding */
+ --ease-in-out:cubic-bezier(.45,0,.2,1);  /* things settling or leaving */
+ --spring:cubic-bezier(.34,1.4,.64,1);    /* things picked up and let go */
+ --dur-hover:120ms;--dur-state:220ms;--dur-page:320ms;
+ --ease:var(--dur-hover) var(--ease-out)} /* the common hover transition: duration and curve */
 
 /* Reset (after github.com/manish-basargekar/css-reset): border-box everywhere, no default
    margins, so every gap on the page comes from the scale. */
@@ -82,7 +91,7 @@ p,h1,h2,h3,h4,h5,h6{overflow-wrap:break-word}
 body{background:var(--bg);color:var(--ink);font:var(--fs-base)/var(--lh-body) var(--font-text)}
 :root[data-grain] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--grain);opacity:var(--grain-opacity)}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0}
-a{color:inherit;text-decoration-color:#b5b5b5;text-decoration-thickness:1px;text-underline-offset:3px}
+a{color:inherit;text-decoration-color:#b5b5b5;text-decoration-thickness:1px;text-underline-offset:3px;transition:text-decoration-color var(--ease),text-underline-offset var(--ease),color var(--ease)}
 a:hover{text-decoration-color:var(--accent)}
 ::selection{background:var(--accent-soft)}
 h1,h2,h3{font-family:var(--font-display);font-size-adjust:var(--display-adjust);font-weight:var(--display-weight);letter-spacing:var(--track-display)}
@@ -99,7 +108,10 @@ p{text-wrap:pretty}
 hr{border:0;border-top:1px solid var(--rule)}
 .soc{font:var(--fs-sm) var(--font-ui);color:var(--mute);margin:calc(-1 * var(--space-1)) 0 0}
 .soc a{margin-right:var(--space-4);text-decoration:none}
-.soc a:hover{text-decoration-line:underline;text-decoration-color:var(--accent)}
+/* Links that are plain at rest: the underline is already there in the page's colour, and the accent lands
+   on it from a little below. */
+.soc a,.rows a,.index li a{text-decoration-line:underline;text-decoration-color:transparent;text-underline-offset:6px}
+.soc a:hover{text-decoration-color:var(--accent);text-underline-offset:3px}
 ul,ol{margin:0 0 var(--space-6);padding-left:var(--space-6)}
 ul{list-style:square}
 li{margin:var(--space-1) 0;padding-left:2px}
@@ -107,7 +119,7 @@ li::marker{font-size:.8em}
 .rows{list-style:none;padding:0;border-top:1px solid var(--rule)}
 .rows li{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-5);margin:0;padding:var(--space-3) 0;border-bottom:1px solid var(--rule);position:relative}
 .rows a{text-decoration:none}
-.rows a:hover{text-decoration-line:underline;text-decoration-color:var(--accent)}
+.rows a:hover{text-decoration-color:var(--accent);text-underline-offset:3px}
 .rows .r,.stamp,footer,dt{font:var(--fs-sm)/var(--lh-body) var(--font-ui);color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
 .rows .n{display:block;color:var(--mute);font-size:var(--fs-lg);font-style:italic}
 .rows .lnk a{font:var(--fs-sm) var(--font-ui);color:var(--mute);text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px;margin-right:var(--space-3)}
@@ -155,6 +167,9 @@ dt{padding-top:var(--space-4)}
 .copy{background:none;cursor:pointer;touch-action:manipulation}
 .copy::after{content:none}
 .copy.done{border-color:var(--accent)}
+.copy .tick{width:11px;height:11px;margin-left:4px;vertical-align:-1px}
+.copy .tick path{stroke-dasharray:14;stroke-dashoffset:14;animation:draw var(--dur-state) var(--ease-out) 60ms forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
 
 /* Essay */
 /* End of an essay: three more pieces as rows, then a link to all of them. */
@@ -205,11 +220,16 @@ dt{padding-top:var(--space-4)}
 nav.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail-w);padding:var(--space-10) var(--space-8) var(--space-8);background:none;display:flex;flex-direction:column;font:var(--fs-md)/var(--lh-medium) var(--font-ui);overflow-y:auto;z-index:2}
 nav.rail::after{content:"";position:fixed;left:calc(var(--rail-w) - 9px);top:var(--space-8);bottom:0;width:1px;background:linear-gradient(to bottom,transparent 0%,var(--rule) 10%,var(--rule) 90%,transparent 100%)}
 nav.rail .name{display:block;font:var(--display-weight) var(--fs-xl)/var(--lh-snug) var(--font-display);font-size-adjust:var(--display-adjust);letter-spacing:var(--track-display);color:var(--ink);text-decoration:none}
-nav.rail .links{margin-top:var(--space-8);display:flex;flex-direction:column;align-items:flex-start}
+nav.rail .links{margin-top:var(--space-8);display:flex;flex-direction:column;align-items:flex-start;isolation:isolate}
 nav.rail .links a{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);margin:0 calc(-1 * var(--space-3));border-radius:var(--radius-md);font-weight:500;color:color-mix(in srgb,var(--ink) 86%,var(--bg));text-decoration:none}
 @media(hover:hover){nav.rail .links a:hover{color:var(--ink);background:var(--hover);transition:background-color var(--ease)}}
-nav.rail .links a[aria-current]{background:var(--on);color:var(--ink);font-weight:500}
-nav.rail .dot{width:var(--space-2);height:var(--space-2);border-radius:50%;background:var(--accent)}
+nav.rail .links a[aria-current]{color:var(--ink);font-weight:500;position:relative}
+/* The highlight is a layer under every link's text (z-index -1 inside the isolated .links), so when it
+   slides between pages it never covers a label. Rail.astro moves it. */
+nav.rail .links a[aria-current]::before{content:"";position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1;border-radius:inherit;background:var(--on)}
+
+nav.rail .dot{width:var(--space-2);height:var(--space-2);border-radius:50%;background:var(--accent);animation:dot-pulse 2.4s var(--ease-in-out) 1.2s 3}
+@keyframes dot-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.55}}
 nav.rail .foot{margin-top:auto;padding-top:var(--space-8);font-size:var(--fs-sm);color:var(--mute)}
 nav.rail .foot a{display:block;padding:var(--space-1) 0;color:var(--mute);text-decoration:none}
 nav.rail .foot a:hover{color:var(--ink)}
@@ -236,7 +256,39 @@ nav.rail .foot .theme,footer .theme{margin-top:var(--space-3)}
 footer .theme{--seg:var(--space-8)}
 footer .theme:not([hidden]){display:flex;width:max-content}
 footer .theme svg{width:var(--space-4);height:var(--space-4)}
-@media(prefers-reduced-motion:reduce){.theme::before{transition:none}}
+/* Lists arrive a row at a time (20ms apart, within the page's own fade), and a row that joins later
+   (a book in the home feed) fades in the same way. The date eases 2px toward a hovered title. */
+.rows>li,.index li{animation:row-in var(--dur-state) var(--ease-out) both}
+.rows>li:nth-child(2),.index li:nth-child(2){animation-delay:20ms}.rows>li:nth-child(3),.index li:nth-child(3){animation-delay:40ms}.rows>li:nth-child(4){animation-delay:60ms}.rows>li:nth-child(5){animation-delay:80ms}.rows>li:nth-child(6){animation-delay:100ms}.rows>li:nth-child(7){animation-delay:120ms}.rows>li:nth-child(8){animation-delay:140ms}.rows>li:nth-child(n+9){animation-delay:160ms}
+.rows>li.in{animation:row-in var(--dur-state) var(--ease-out) both}
+@keyframes row-in{from{opacity:0}to{opacity:1}}
+.rows .r{transition:transform var(--ease)}
+@media(hover:hover){.rows>li:hover .r{transform:translateX(-2px)}}
+
+/* Hovering a pill lifts it 1px on a two-layer shadow. */
+@media(hover:hover){.all:hover,.lost-home:hover{transform:translateY(-1px);box-shadow:0 1px 1px rgba(0,0,0,.05),0 4px 10px -6px rgba(0,0,0,.25)}}
+
+/* Pressing: pills and buttons give a little under the pointer and spring back. */
+.all,.copy,.theme button,.lost-home{transition:transform 80ms var(--ease-out),box-shadow var(--ease),background-color var(--ease),border-color var(--ease),color var(--ease)}
+.all:active,.copy:active,.theme button:active,.lost-home:active{transform:scale(.97);transition-duration:60ms}
+
+/* Page changes (Astro's ClientRouter): the rail and footer stay put, the content fades up. On first load
+   the content fades up the same way. */
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-old(main){animation:page-out var(--dur-hover) var(--ease-in-out) both}
+::view-transition-new(main){animation:page-in var(--dur-page) var(--ease-out) both}
+@keyframes page-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes page-out{to{opacity:0}}
+html.fresh main{animation:page-in var(--dur-page) var(--ease-out) both}
+
+/* Dev only: ?motion=off on any page turns every transition and animation off, to compare. */
+[data-motion="off"] *,[data-motion="off"] *::before,[data-motion="off"] *::after{transition:none!important;animation:none!important}
+
+/* No motion for anyone who asked for none: instant changes, the same end states. */
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+ ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+}
 /* A theme change doesn't animate the page, only the switcher's chip. */
 .theme-switching *:not(.theme),.theme-switching *:not(.theme)::before,.theme-switching *::after{transition:none!important}
 footer a{margin-right:var(--space-3);text-decoration:none}
@@ -266,6 +318,7 @@ footer a{margin-right:var(--space-3);text-decoration:none}
  .wrap{padding:0 var(--space-4)!important}
  main{max-width:none!important}
  .xp li,dl>*{break-inside:avoid}
+ .rows>li,.index li,main{animation:none!important}
  .rows li{break-inside:avoid}
  footer{display:block;margin-top:var(--space-6)}
 }

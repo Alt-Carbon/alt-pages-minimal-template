@@ -212,5 +212,12 @@ export function sampleAll(list: Book[], root: ParentNode = document) {
   }
 }
 
+// ---------- page lifetime ----------
+// Pages change in place (Astro's ClientRouter). Listeners on window or document take this signal, so
+// they stop when the visitor leaves the page instead of piling up.
+let life = new AbortController();
+export const pageSignal = () => life.signal;
+addEventListener("astro:before-swap", () => { life.abort(); life = new AbortController(); });
+
 // ---------- misc ----------
 export const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;

@@ -1,10 +1,9 @@
 // Bookshelf style "gallery" (ported from prototype E · Gallery): big face-out covers grouped by the
 // year they were read, the year pinned beside each group; a cover flies into a QuickView tinted in
 // the book's own colour, with a 3D book, the numbers, the review and prev/next.
-import "../../styles/shelf/gallery.css";
 import {
   type Book, type RGB, type Shelf, type Style, NOW, colour, day, esc, groups, hex, human, links, lum, n, paint, paragraphs,
-  reduced, rgbOf, sampleAll, short, stars,
+  pageSignal, reduced, rgbOf, sampleAll, short, stars,
 } from "./shared";
 
 // ---------- colour: OKLab, so tints keep the cover's hue at an even lightness ----------
@@ -62,7 +61,7 @@ async function settled(b: Book) {
 const plural = (k: number) => `${n(k)} ${k === 1 ? "book" : "books"}`;
 const E_OUT = "cubic-bezier(.22,1,.36,1)", E_IN = "cubic-bezier(.4,0,.2,1)";
 const ars = new Map<string, number>(); // cover aspect ratios, measured as the images load
-let searchBox: HTMLInputElement | null = null, slashBound = false;
+let searchBox: HTMLInputElement | null = null;
 
 export const render: Style = (shelf, root) => {
   const books = shelf.books;
@@ -303,11 +302,10 @@ export const render: Style = (shelf, root) => {
     if (scrollY > top) scrollTo(0, top);
   });
   q.addEventListener("keydown", (e) => { if (e.key === "Escape" && q.value) { e.preventDefault(); q.value = ""; query = ""; draw(); } });
-  if (!slashBound) {
-    slashBound = true;
+  {
     addEventListener("keydown", (e) => {
       if (e.key === "/" && searchBox && !document.querySelector("dialog[open]") && !(e.target as HTMLElement).closest?.("input, textarea")) { e.preventDefault(); searchBox.focus(); searchBox.select(); }
-    });
+    }, { signal: pageSignal() });
   }
 
   draw();

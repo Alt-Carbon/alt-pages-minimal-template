@@ -6,10 +6,7 @@
 // filter chips, the year links and the search (hits are marked); ?filter=, ?q= and #book-<id> are the
 // URL. Everything renders once; filtering and search only hide, show and re-mark.
 import "../../styles/shelf/journal.css";
-import {
-  type Book, type Shelf, type Style, day, esc, excerpt, groups, links, monthYear, n, paragraphs, reduced, sampleAll,
-  short, stars, stats,
-} from "./shared";
+import { type Book, type Shelf, type Style, day, esc, excerpt, groups, links, monthYear, n, paragraphs, reduced, sampleAll, short, stars } from "./shared";
 
 type Group = { key: string; books: Book[] };
 type Entry = { b: Book; pull: string; body: string; flat: string; long: boolean; mins: number; hay: string };
@@ -159,11 +156,10 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
 
   const counts = { all: shelf.books.length, reviewed: shelf.books.filter((b) => b.review).length, five: shelf.books.filter((b) => b.rating === 5).length };
   const chip = (f: string, label: string, c: number) => `<button class="chip" type="button" data-f="${f}" aria-pressed="${f === "all"}">${label}<span>${n(c)}</span></button>`;
-  root.innerHTML = `<p class="stats">${stats(shelf).map(([v, l]) => `<span>${n(v)} ${l}</span>`).join("")}</p>`
-    + `<div class="bar"><div class="strip"><div class="chips" role="group" aria-label="Show">${chip("all", "All", counts.all)}${chip("reviewed", "Reviewed", counts.reviewed)}${chip("five", "5 stars", counts.five)}</div>`
-    + `<span class="sep" aria-hidden="true"></span><nav class="years" aria-label="Jump to year">`
-    + (reading.length ? `<a href="#jr-y-now" data-key="now">Now</a>` : "") + years.map((g) => `<a href="#jr-y-${g.key}" data-key="${g.key}">${g.key === "undated" ? "Undated" : g.key}</a>`).join("")
-    + `</nav></div><label class="search"><span class="vh">Search titles, authors and reviews</span><input type="search" placeholder="Search books and reviews" autocomplete="off" spellcheck="false" aria-keyshortcuts="/"><span class="hint" aria-hidden="true"><kbd>/</kbd></span></label></div>`
+  root.innerHTML = `<div class="bar"><div class="strip"><div class="chips" role="group" aria-label="Show">${chip("all", "All", counts.all)}${chip("reviewed", "Reviewed", counts.reviewed)}${chip("five", "5 stars", counts.five)}</div>`
+    + `<label class="ymenu"><span class="vh">Jump to year</span><select class="years">`
+    + (reading.length ? `<option value="now">Now</option>` : "") + years.map((g) => `<option value="${g.key}">${g.key === "undated" ? "Undated" : g.key}</option>`).join("")
+    + `</select></label></div><label class="search"><span class="vh">Search titles, authors and reviews</span><input type="search" placeholder="Search books and reviews" autocomplete="off" spellcheck="false" aria-keyshortcuts="/"><span class="hint" aria-hidden="true"><kbd>/</kbd></span></label></div>`
     + `<p class="vh live" aria-live="polite"></p>`
     + `<div class="view">${nowSection()}${years.map(section).join("")}<div class="empty" hidden><p></p><p><button type="button" class="reset">Show everything</button></p></div></div>`
     + `<p class="fin"><a href="#content" class="totop">Back to top ↑</a></p>`;
@@ -173,7 +169,7 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
   tip.setAttribute("aria-hidden", "true");
   document.body.append(tip);
 
-  const view = $(".view")!, bar = $(".bar")!, yearsEl = $(".years")!, qEl = $<HTMLInputElement>(".search input")!, hint = $(".hint")!, live = $(".live")!, empty = $(".empty")!;
+  const view = $(".view")!, bar = $(".bar")!, yearsEl = $<HTMLSelectElement>(".years")!, qEl = $<HTMLInputElement>(".search input")!, hint = $(".hint")!, live = $(".live")!, empty = $(".empty")!;
   const art = (id: string) => $(`#book-${CSS.escape(id)}`);
 
   // ---------- state, filters and search ----------
@@ -268,7 +264,8 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
       sec.hidden = !k; total += k;
       $(".shown", sec)!.textContent = k < g.books.length ? `${k} of ${g.books.length} shown` : "";
     }
-    for (const a of $$("a", yearsEl)) a.hidden = $(`#jr-y-${a.dataset.key}`)!.hidden;
+    // Years with nothing matching leave the menu (disabled too: Safari ignores hidden options).
+    for (const o of yearsEl.options) o.hidden = o.disabled = $(`#jr-y-${o.value}`)!.hidden;
     for (const c of $$(".chip")) c.setAttribute("aria-pressed", String(c.dataset.f === state.f));
     empty.hidden = !!total;
     if (!total) $("p", empty)!.textContent = q ? `Nothing matches “${state.q.trim()}”.` : "Nothing here yet.";
@@ -366,13 +363,14 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
     if (a) reveal(a, true, smooth);
   }
   addEventListener("hashchange", () => openHash(!reduced()), { signal });
-  // Year links scroll smoothly (the page has no scroll-behavior of its own) and leave the hash alone.
-  yearsEl.addEventListener("click", (ev) => {
-    const a = (ev.target as Element).closest<HTMLAnchorElement>("a");
-    if (!a) return;
-    const sec = $(`#jr-y-${a.dataset.key}`);
+  // The year menu scrolls smoothly to the year (the page has no scroll-behavior of its own) and leaves
+  // the hash alone. While it scrolls, the spy holds off so the menu doesn't flick through the years between.
+  let jumping = 0;
+  yearsEl.addEventListener("change", () => {
+    const sec = $(`#jr-y-${yearsEl.value}`);
     if (!sec) return;
-    ev.preventDefault();
+    clearTimeout(jumping);
+    jumping = window.setTimeout(() => { jumping = 0; spy(); }, reduced() ? 0 : 900);
     sec.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" });
   }, { signal });
   $(".totop")!.addEventListener("click", (ev) => { ev.preventDefault(); scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); }, { signal });
@@ -388,32 +386,23 @@ export const render: Style = (shelf: Shelf, root: HTMLElement) => {
       let cur: string | undefined;
       for (const s of $$(".yr")) { if (s.hidden) continue; if (s.getBoundingClientRect().top <= line) cur = s.dataset.key; }
       if (!cur) cur = $$(".yr").find((s) => !s.hidden)?.dataset.key;
-      let active: HTMLElement | null = null;
-      for (const a of $$("a", yearsEl)) {
-        const on = a.dataset.key === cur;
-        if (on) { a.setAttribute("aria-current", "true"); active = a; } else a.removeAttribute("aria-current");
-      }
+      if (cur && !jumping && yearsEl.value !== cur) yearsEl.value = cur;
       // A pinned bar sits exactly 16px off the bottom edge; only then does it get its floating look.
       for (const a of $$(".e.open")) {
         const acts = $(".acts", a)!, el = getComputedStyle(acts).display === "contents" ? $(".expand", a)! : acts;
         a.classList.toggle("stuck", Math.abs(el.getBoundingClientRect().bottom - (innerHeight - 16)) < 1.5);
       }
-      if (active && yearsEl.scrollWidth > yearsEl.clientWidth) {
-        const ar = active.getBoundingClientRect(), sr = yearsEl.getBoundingClientRect();
-        if (ar.left < sr.left + 24 || ar.right > sr.right - 24) yearsEl.scrollTo({ left: yearsEl.scrollLeft + ar.left - sr.left - sr.width / 2 + ar.width / 2, behavior: reduced() ? "auto" : "smooth" });
-      }
     });
   }
   addEventListener("scroll", spy, { passive: true, signal });
   addEventListener("resize", spy, { signal });
-  const ovf = () => {
-    yearsEl.classList.toggle("ovf", yearsEl.scrollWidth > yearsEl.clientWidth + 1 && yearsEl.scrollLeft + yearsEl.clientWidth < yearsEl.scrollWidth - 2);
-    yearsEl.classList.toggle("lft", yearsEl.scrollLeft > 2);
-  };
-  yearsEl.addEventListener("scroll", ovf, { passive: true, signal });
-  const ro2 = new ResizeObserver(ovf);
-  ro2.observe(yearsEl);
-  signal.addEventListener("abort", () => { ro.disconnect(); ro2.disconnect(); tip.remove(); cancelAnimationFrame(spyRaf); });
+  // The bar has no background until it sticks: a 1px sentinel above it says when it has.
+  const sentinel = document.createElement("div");
+  sentinel.className = "sentinel";
+  bar.before(sentinel);
+  const io = new IntersectionObserver(([e]) => bar.classList.toggle("stuck", !e!.isIntersecting));
+  io.observe(sentinel);
+  signal.addEventListener("abort", () => { ro.disconnect(); io.disconnect(); tip.remove(); cancelAnimationFrame(spyRaf); clearTimeout(jumping); });
 
   apply();
   if (/^#book-/.test(location.hash)) (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(() => openHash(false)));

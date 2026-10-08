@@ -10,7 +10,7 @@
  --shadow-a:light-dark(rgba(20,16,10,.07),rgba(0,0,0,.35));--shadow-b:light-dark(rgba(20,16,10,.16),rgba(0,0,0,.55))}
 html:has(.shelf-gallery-qv[open]){overflow:hidden}
 
-/* ---------- search, under the stats line ---------- */
+/* ---------- search, above the gallery ---------- */
 .shelf-gallery .controls{display:flex;gap:var(--space-3);align-items:center;margin:var(--space-5) 0 0}
 .shelf-gallery .search{position:relative;flex:1 1 220px;max-width:360px}
 .shelf-gallery .search input{width:100%;font:var(--fs-lg) var(--font-ui);color:var(--ink);background:var(--hover);border:0;border-radius:var(--radius-full);padding:var(--space-2) 36px var(--space-2) var(--space-4);outline-offset:2px;appearance:none;-webkit-appearance:none}

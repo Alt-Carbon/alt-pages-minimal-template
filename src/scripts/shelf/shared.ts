@@ -167,11 +167,3 @@ export async function sampleAll(books: Book[], root: ParentNode = document) {
 
 // ---------- misc ----------
 export const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-export const stats = (shelf: Shelf) => {
-  const c = shelf.view.counts, read = c?.read ?? shelf.read.length, y = String(new Date().getFullYear());
-  return [
-    [read, read === 1 ? "book read" : "books read"],
-    c?.perYear?.[y] ? [c.perYear[y], `read in ${y}`] : null,
-    shelf.reading.length ? [shelf.reading.length, "reading now"] : null,
-  ].filter(Boolean) as [number, string][];
-};

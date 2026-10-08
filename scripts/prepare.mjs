@@ -152,14 +152,14 @@ singletons:
     file: content/reading.json
     format: json
     fields:
-          - { label: Introduction, name: intro, widget: text, required: false }
+          - { label: Subtitle, name: intro, widget: text, required: false, hint: "One line under the Reading title. Also the page's description in search results and link previews." }
   - name: research
     label: Research
     icon: science
     file: content/research.json
     format: json
     fields:
-          - { label: Introduction, name: intro, widget: text, required: false }
+          - { label: Subtitle, name: intro, widget: text, required: false, hint: "A line or two under the Research title. Also the page's description in search results and link previews." }
           - label: Publications and talks
             name: items
             widget: list

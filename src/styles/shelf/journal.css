@@ -12,23 +12,23 @@
 .shelf-journal .serif,.shelf-journal .num,.shelf-journal .t,.shelf-journal .pq,.shelf-journal .rv,.shelf-journal .nh h2,.shelf-journal .nb .nt,.shelf-journal .ledger dd a,.shelf-journal .cv .ini,.shelf-journal .empty p:first-child{font-family:var(--font-display);font-size-adjust:var(--display-adjust)}
 
 /* Control bar: sticks to the top of the window (nothing of the site's is sticky above it; on phones the
-   rail is a static strip at the top), bleeding a little past the column. */
+   rail is a static strip at the top). No background at rest; once stuck (journal.ts adds .stuck) it gets
+   a soft blurred one and a hairline. Filters sit in a recessed track with a raised chip, like the theme
+   switcher; the year menu shows the year in view and jumps to any year. */
+.shelf-journal .sentinel{height:1px;margin-bottom:-1px}
 .shelf-journal .bar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:var(--space-2) var(--space-3);margin:var(--space-6) calc(-1 * var(--space-4)) 0;padding:var(--space-2) var(--space-4);
- background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);border-bottom:1px solid var(--rule)}
-.shelf-journal .strip{display:flex;align-items:center;gap:var(--space-1);flex:1;min-width:0}
-.shelf-journal .chips{display:flex;gap:var(--space-1);flex:none}
-.shelf-journal .chip{font:var(--fs-sm)/var(--space-5) var(--font-ui);padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);color:var(--mute);white-space:nowrap;box-shadow:inset 0 0 0 1px var(--rule);transition:color var(--ease),background-color .2s,box-shadow .2s}
+ border-bottom:1px solid transparent;transition:background-color .2s,border-color .2s}
+.shelf-journal .bar.stuck{background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(12px) saturate(1.2);-webkit-backdrop-filter:blur(12px) saturate(1.2);border-bottom-color:var(--rule)}
+.shelf-journal .strip{display:flex;align-items:center;gap:var(--space-2);flex:1;min-width:0}
+.shelf-journal .chips{display:flex;flex:none;padding:2px;border-radius:var(--radius-full);background:var(--hover)}
+.shelf-journal .chip{font:var(--fs-sm)/var(--space-5) var(--font-ui);padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);color:var(--mute);white-space:nowrap;transition:color var(--ease),background-color .2s,box-shadow .2s}
 .shelf-journal .chip span{margin-left:var(--space-1);font-variant-numeric:tabular-nums;opacity:.65}
-.shelf-journal .chip[aria-pressed="true"]{color:var(--bg);background:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
-.shelf-journal .sep{flex:none;width:1px;height:18px;background:var(--rule);margin:0 var(--space-2)}
-.shelf-journal .years{display:flex;gap:0;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;font:var(--fs-sm)/var(--space-5) var(--font-ui)}
-.shelf-journal .years::-webkit-scrollbar{display:none}
-.shelf-journal .years.ovf{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
-.shelf-journal .years.ovf.lft{-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 32px),transparent)}
-.shelf-journal .years a{position:relative;color:var(--mute);text-decoration:none;padding:var(--space-1) 6px;border-radius:var(--radius-sm);font-variant-numeric:tabular-nums;white-space:nowrap;transition:color var(--ease)} /* 6px: optical, the links read as one row */
-.shelf-journal .years a::after{content:"";position:absolute;left:6px;right:6px;bottom:1px;height:1.5px;border-radius:1px;background:var(--accent);scale:0 1;transition:scale .3s var(--out)}
-.shelf-journal .years a[aria-current="true"]{color:var(--ink)}
-.shelf-journal .years a[aria-current="true"]::after{scale:1 1}
+.shelf-journal .chip[aria-pressed="true"]{color:var(--ink);background:var(--raised);box-shadow:0 0 0 1px var(--rule),0 1px 2px rgba(0,0,0,.08)}
+.shelf-journal .ymenu{display:inline-flex;flex:none}
+.shelf-journal .years{font:var(--fs-sm)/var(--space-5) var(--font-ui);color:var(--ink);background-color:var(--hover);border:0;border-radius:var(--radius-full);padding:var(--space-1) var(--space-8) var(--space-1) var(--space-3);cursor:pointer;font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right var(--space-3) center;background-size:11px}
+.shelf-journal .years option{background:var(--bg);color:var(--ink)}
+.shelf-journal .search{margin-left:auto}
 .shelf-journal .search{position:relative;flex:0 1 212px;min-width:150px}
 .shelf-journal .search input{width:100%;font:var(--fs-sm)/var(--space-5) var(--font-ui);color:var(--ink);background:var(--hover);border:0;border-radius:var(--radius-full);padding:var(--space-1) var(--space-10) var(--space-1) var(--space-4);-webkit-appearance:none;appearance:none}
 .shelf-journal .search input::-webkit-search-cancel-button{display:none}
@@ -38,8 +38,7 @@
 .shelf-journal kbd{display:inline-block;font:inherit;border:1px solid var(--rule);border-radius:4px;padding:0 5px;line-height:16px}
 @media(hover:hover){
  .shelf-journal .chip:hover{color:var(--ink)}
- .shelf-journal .chip[aria-pressed="true"]:hover{color:var(--bg)}
- .shelf-journal .years a:hover{color:var(--ink)}
+ .shelf-journal .years:hover{color:var(--ink);background-color:var(--on)}
 }
 
 /* Sections: a sticky column with the year, the entries beside it. */
@@ -188,10 +187,9 @@
  .shelf-journal .bar{flex-wrap:wrap;padding-bottom:var(--space-2)}
  .shelf-journal .search{order:1;flex:1 1 auto}
  .shelf-journal .strip{order:3;flex:1 0 100%}
+ .shelf-journal .ymenu{margin-left:auto}
  .shelf-journal .chip{padding:var(--space-1) var(--space-2)}
  .shelf-journal .chip span{display:none}
- .shelf-journal .sep{margin:0 var(--space-1)}
- .shelf-journal .years{flex:1 1 0}
  .shelf-journal .rail{grid-template-columns:minmax(0,1fr)}
  .shelf-journal .months{grid-column:1;grid-row:auto;justify-self:stretch;max-width:none;margin-top:var(--space-4)}
  .shelf-journal .num{font-size:72px}

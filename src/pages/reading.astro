@@ -1,12 +1,13 @@
 ---
 // The bookshelf: the owner's Goodreads shelves, drawn in the browser in the style picked in
 // Site settings (Bookshelf style). Until a profile is connected, a sample shelf is shown.
+// The Reading description is the subtitle under the title, and the description in search results and link previews.
 import Base from "../layouts/Base.astro";
 import Shelf from "../components/Shelf.astro";
-import { reading, site } from "../lib/content";
+import { inline, reading, site } from "../lib/content";
 ---
 <Base page="reading" title="Reading" description={reading.intro}>
   <h1>Reading</h1>
-  {reading.intro && <p>{reading.intro}</p>}
+  {reading.intro && <p class="deck"><Fragment set:html={inline(reading.intro)} /></p>}
   <Shelf goodreads={site.goodreads} style={site.shelf} />
 </Base>

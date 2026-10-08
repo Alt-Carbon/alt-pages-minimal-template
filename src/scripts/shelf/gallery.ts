@@ -4,7 +4,7 @@
 import "../../styles/shelf/gallery.css";
 import {
   type Book, type RGB, type Shelf, type Style, NOW, colour, day, esc, groups, hex, human, links, lum, n, paint, paragraphs,
-  reduced, rgbOf, sampleAll, short, stars, stats,
+  reduced, rgbOf, sampleAll, short, stars,
 } from "./shared";
 
 // ---------- colour: OKLab, so tints keep the cover's hue at an even lightness ----------
@@ -118,9 +118,8 @@ export const render: Style = (shelf, root) => {
     const b = byId.get(img.closest<HTMLElement>(".card")!.dataset.id!); if (b) img.outerHTML = ph(b);
   }, true);
 
-  // ---------- page: stats, search, the gallery, the dialog ----------
-  root.innerHTML = `<p class="stats">${stats(shelf).map(([v, l]) => `<span>${n(v)} ${l}</span>`).join("")}</p>`
-    + `<div class="controls" role="search"><label class="search"><span class="vh">Find a title or author</span><input type="search" placeholder="Find a title or author" autocomplete="off" spellcheck="false"><kbd aria-hidden="true">/</kbd></label><span class="hits" aria-live="polite"></span></div>`;
+  // ---------- page: search, the gallery, the dialog ----------
+  root.innerHTML = `<div class="controls" role="search"><label class="search"><span class="vh">Find a title or author</span><input type="search" placeholder="Find a title or author" autocomplete="off" spellcheck="false"><kbd aria-hidden="true">/</kbd></label><span class="hits" aria-live="polite"></span></div>`;
   root.append(view);
   const hits = root.querySelector<HTMLElement>(".hits")!;
   const q = root.querySelector<HTMLInputElement>(".search input")!;

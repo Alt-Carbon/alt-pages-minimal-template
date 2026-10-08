@@ -3,10 +3,7 @@
 // slot; a click opens the details inline under the row. Rows: Favourites (five stars), Reading now,
 // then each year. Deep links: #book-<id>.
 import "../../styles/shelf/turn.css";
-import {
-  type Book, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, links, n, paragraphs, reduced, rgbOf,
-  sampleAll, short, stars, stats, surname, textOn,
-} from "./shared";
+import { type Book, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, links, n, paragraphs, reduced, rgbOf, sampleAll, short, stars, surname, textOn } from "./shared";
 
 type Row = { key: string; label: string; books: Book[] };
 type Spring = { a: number; v: number; to: number; W: number; D: number; bx: HTMLElement };
@@ -38,8 +35,7 @@ export const render: Style = (shelf, root) => {
   let SCALE = 1;
   let ROWS: Row[] = [];
 
-  root.innerHTML = `<p class="stats">${stats(shelf).map(([v, l]) => `<span>${n(v)} ${l}</span>`).join("")}</p>`
-    + `<div class="controls" role="search"><label class="search"><span class="vh">Find a title or author</span>`
+  root.innerHTML = `<div class="controls" role="search"><label class="search"><span class="vh">Find a title or author</span>`
     + `<input type="search" placeholder="Find a title or author" autocomplete="off" spellcheck="false"><kbd aria-hidden="true">/</kbd></label></div>`
     + `<div class="rows"></div>`;
   const rowsEl = $(".rows", root)!, q = $<HTMLInputElement>(".search input", root)!, controls = $(".controls", root)!;

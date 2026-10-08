@@ -1,6 +1,6 @@
 // The plain list: every book and every field, grouped as Reading now, then by year read. It is what
 // prints, and the fallback if a style fails to load.
-import { type Shelf, day, esc, facts, groups, human, links, n, paragraphs, stars, stats } from "./shared";
+import { type Shelf, day, esc, facts, groups, human, links, paragraphs, stars } from "./shared";
 
 export function renderList(shelf: Shelf, root: HTMLElement) {
   const row = (b: Book) => {
@@ -15,7 +15,7 @@ export function renderList(shelf: Shelf, root: HTMLElement) {
     return `<li>${cover}<div><h3><a href="${esc(b.url)}">${esc(b.title)}</a></h3><p class="by">${esc(b.author)}</p>`
       + `${meta ? `<p class="meta">${meta}</p>` : ""}${tags}${review}<p class="links">${links(b).join("")}</p></div></li>`;
   };
-  let html = `<p class="stats">${stats(shelf).map(([v, l]) => `<span>${n(v)} ${l}</span>`).join("")}</p>`;
+  let html = "";
   for (const [name, bs] of groups(shelf.books)) {
     html += `<h2>${esc(name)} <span class="count">${bs.length}</span></h2><ul class="booklist">${bs.map(row).join("")}</ul>`;
   }

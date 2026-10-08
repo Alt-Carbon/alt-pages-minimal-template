@@ -87,6 +87,11 @@ a:hover{text-decoration-color:var(--accent)}
 ::selection{background:var(--accent-soft)}
 h1,h2,h3{font-family:var(--font-display);font-size-adjust:var(--display-adjust);font-weight:var(--display-weight);letter-spacing:var(--track-display)}
 h1{font-size:var(--fs-3xl);line-height:var(--lh-tight);margin:-6px 0 var(--space-8);text-wrap:balance} /* -6px: optical, lines the cap height up with the name in the rail */
+/* A page's subtitle: one quiet line tight under its title (Reading and Research use their description). */
+h1:has(+ .deck){margin-bottom:var(--space-2)}
+.deck{font:var(--fs-lg)/var(--lh-medium) var(--font-ui);color:var(--mute);max-width:var(--measure);margin:0 0 var(--space-8);text-wrap:pretty}
+.page.reading .deck{margin-bottom:0} /* the shelf's own controls bring their spacing */
+.src:empty{display:none}
 h2{font-size:var(--fs-2xl);line-height:var(--lh-snug);margin:var(--space-10) 0 var(--space-3);text-wrap:balance}
 h3{font-size:var(--fs-xl);line-height:var(--lh-snug);margin:var(--space-8) 0 var(--space-2)}
 p,blockquote,pre,figure,table,hr{margin:0 0 var(--space-6)}
@@ -186,8 +191,7 @@ dt{padding-top:var(--space-4)}
 .essay li::marker{color:var(--mute)}
 
 
-/* Reading: the stats line above any shelf style, the stars, and the plain list (print, and the fallback). */
-.stats{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--space-1) var(--space-4);font:var(--fs-sm)/var(--lh-body) var(--font-ui);color:var(--mute);font-variant-numeric:tabular-nums;margin:var(--space-2) 0 0}
+/* Reading: the stars, and the plain list (print, and the fallback). */
 .stars{color:var(--accent);letter-spacing:.08em}
 .stars i{font-style:normal;color:var(--rule)}
 /* Books as a plain list: cover, then every field the sync has. */
@@ -272,7 +276,7 @@ footer a{margin-right:var(--space-3);text-decoration:none}
  body::before{display:none}
  .theme{display:none!important}
  body{background:#fff!important;color:#000!important;font-size:11pt}
- nav.rail,.skip,.more,.src,.all,.stats,.theme{display:none!important}
+ nav.rail,.skip,.more,.src,.all,.theme{display:none!important}
  .wrap{padding:0 0 0 var(--space-4)!important}
  main{max-width:none!important}
  .plist{display:block}

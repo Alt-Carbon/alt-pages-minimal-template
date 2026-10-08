@@ -4,10 +4,7 @@
 // twelve. Hover or focus slides a book out and names it in the caption; pressing it opens a side
 // drawer with the cover, the facts and the full review, with prev/next through the pile.
 import "../../styles/shelf/stacks.css";
-import {
-  type Book, type GroupBy, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, human, links, n, paragraphs,
-  reduced, rgbOf, sampleAll, short, stars, stats, surname, textOn, usesShelves,
-} from "./shared";
+import { type Book, type GroupBy, type Shelf, type Style, NOW, esc, facts, groups, hash, hex, human, links, n, paragraphs, reduced, rgbOf, sampleAll, short, stars, surname, textOn, usesShelves } from "./shared";
 
 type Pile = { name: string; part: number; parts: number; books: Book[] };
 const PER = 12;
@@ -23,8 +20,7 @@ export const render: Style = (shelf, root) => {
   const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = root) => [...r.querySelectorAll<T>(s)];
 
   // ---------- the page ----------
-  root.innerHTML = `<p class="stats">${stats(shelf).map(([v, l]) => `<span>${n(v)} ${l}</span>`).join("")}</p>`
-    + `<div class="controls" role="toolbar" aria-label="Shelf controls">`
+  root.innerHTML = `<div class="controls" role="toolbar" aria-label="Shelf controls">`
     + `<label class="search"><span class="vh">Find a title or author</span><input type="search" placeholder="Find a title or author" autocomplete="off" spellcheck="false"><kbd aria-hidden="true">/</kbd></label>`
     + (usesShelves(books) ? `<div class="seg" role="group" aria-label="Group by"><button type="button" data-group="year" aria-pressed="true">By year</button><button type="button" data-group="shelf" aria-pressed="false">By shelf</button></div>` : "")
     + `</div><div class="view"></div><p class="vh" aria-live="polite"></p>`

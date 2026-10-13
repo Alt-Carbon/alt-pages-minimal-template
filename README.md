@@ -56,6 +56,10 @@ The Reading page draws the shelf in the browser from that JSON, so books change 
 
 Set a Medium handle or address and a Substack address under Site settings, and the Worker reads their public RSS feeds (`medium.com/feed/@handle`, `<name>.substack.com/feed`) every 12 hours, keeps the newest posts in KV, and serves them at `/writing/elsewhere.json` (`src/worker/core/posts.js` parses, `posts-store.js` runs a sync, `posts-object.js` is the Durable Object with the alarm). The Writing page and the home page add those posts to their lists in the browser (`src/scripts/posts.ts`), each with a small chip saying where it lives and a link to the post there. A feed that fails keeps its last good posts. Medium shares its 10 newest stories and Substack its 20 newest posts, so older pieces still need an entry under Writing with "Published elsewhere" set; those get the same chip. Posts to leave out are listed under Writing page → Posts to leave out. With nothing set, the sample posts in `public/writing/elsewhere.json` are served, regenerated with `npm run sample:posts`. `GET /writing/elsewhere/status` reports the last run; `POST /writing/elsewhere/sync` asks for one now.
 
+## Signing in without the company
+
+The editor signs in with GitHub, which needs a small server to turn a login code into a token. By default that is the company's sign-in service (Advanced → Sign-in service). Turn on Advanced → **Sign in through this site** and the site's own Worker is that server instead (`src/worker/auth.js`): publish, open `/auth/setup` on your site, and press the button. GitHub creates a private GitHub App on your account through its app manifest flow, sends the app's keys back to your Worker, which keeps them in its KV namespace, and then asks you to install the app on this repository. From then on `/admin` signs in through your own site, and nothing about it depends on anyone else. Only the owner of the repository named in the editor's config can complete setup, and a token is only ever handed to this site's own origin. If sign-in stops working, open `/auth/setup` again and create a new app.
+
 ## Layout
 
 | Path | What |

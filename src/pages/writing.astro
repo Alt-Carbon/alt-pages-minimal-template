@@ -1,4 +1,6 @@
 ---
+// The Writing page: every piece in content/writing, and, in the browser, the owner's newest posts on
+// Medium and Substack from /writing/elsewhere.json, each with a chip saying where it lives.
 import Base from "../layouts/Base.astro";
 import PostRow from "../components/PostRow.astro";
 import { inline, site, writing, writingPage } from "../lib/content";
@@ -7,7 +9,27 @@ const posts = await writing();
 <Base page="writing" title="Writing" description={writingPage.intro || `Essays and notes by ${site.name}.`}>
   <h1>Writing</h1>
   {writingPage.intro && <p class="deck"><Fragment set:html={inline(writingPage.intro)} /></p>}
-  <ul class="rows">
+  <ul class="rows" id="writing-rows" data-hide={JSON.stringify(writingPage.hide)}>
     {posts.map((p) => <PostRow post={p} />)}
   </ul>
+  <p class="src" id="writing-src"></p>
 </Base>
+
+<script>
+  import { insertByDate, loadPosts, postRow, syncNote, visible } from "../scripts/posts";
+
+  // Pages change in place (ClientRouter), so this runs whenever the Writing page is shown.
+  document.addEventListener("astro:page-load", async () => {
+    const ul = document.getElementById("writing-rows");
+    if (!ul) return;
+    const src = document.getElementById("writing-src")!;
+    const view = await loadPosts();
+    if (!view) return;
+    let hide: string[] = [];
+    try { hide = JSON.parse(ul.dataset.hide || "[]"); } catch {}
+    for (const p of visible(view, hide)) insertByDate(ul, postRow(p));
+    src.innerHTML = view.syncing && !view.posts.length
+      ? "Reading your Medium and Substack feeds for the first time. Reload in a moment to see the posts."
+      : syncNote(view);
+  });
+</script>

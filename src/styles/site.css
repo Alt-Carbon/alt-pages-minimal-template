@@ -178,6 +178,8 @@ dt{padding-top:var(--space-4)}
 .more .rows{margin-bottom:var(--space-4)}
 /* Pieces that live on another site. */
 .ext{margin-left:.25em;color:var(--mute);font-size:.85em}
+/* Where a piece lives when it is on another site: Medium, Substack, or the host. (.chip is the reading journal's filter.) */
+.where{display:inline-block;vertical-align:2px;margin-left:var(--space-2);padding:1px var(--space-2);border-radius:var(--radius-full);background:var(--hover);font:var(--fs-xs)/1.5 var(--font-ui);font-style:normal;color:var(--mute);white-space:nowrap}
 .essay h2{font-size:var(--fs-xl);margin-top:var(--space-8)}
 .essay h3{font-size:var(--fs-base)}
 .essay blockquote{padding-left:var(--space-4);border-left:2px solid var(--rule);color:var(--mute)}

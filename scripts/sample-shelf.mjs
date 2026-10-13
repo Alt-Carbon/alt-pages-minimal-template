@@ -1,6 +1,6 @@
 // Regenerates the sample bookshelf shown until a site connects its own Goodreads profile, from a real
-// public profile, with the same code the site's Worker runs. Default: Otis Chandler (id 1), who founded
-// Goodreads. Usage: npm run sample:shelf [-- <goodreads id or profile URL>]
+// public profile, with the same code the site's Worker runs. Default: Adithya (id 19054312).
+// Usage: npm run sample:shelf [-- <goodreads id or profile URL>]
 //
 // Writes public/reading/view.json (what the pages read first) and public/reading/books.json (every book).
 // Covers point straight at Goodreads' image servers so the sample also works under `astro dev`, which
@@ -11,7 +11,7 @@ import { fetchPage } from "../src/worker/core/sync.js";
 import { fetchProfile } from "../src/worker/core/profile.js";
 import { buildView } from "../src/worker/store.js";
 
-const userId = userIdFrom(process.argv[2] || "1");
+const userId = userIdFrom(process.argv[2] || "19054312");
 if (!userId) throw new Error("Give a Goodreads id or profile URL.");
 
 const page = async (shelf, n) => (await fetchPage({ userId, shelf, page: n })).books.map((b) => ({ ...b, status: shelf }));

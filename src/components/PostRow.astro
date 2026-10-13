@@ -1,14 +1,17 @@
 ---
-// One piece of writing in a list: title (marked when it lives on another site), blurb, date.
+// One piece of writing in a list: title (with a small chip saying where it lives, when it lives on
+// another site), blurb, date. Posts synced from Medium and Substack get the same row in the browser
+// (src/scripts/posts.ts postRow()).
 import type { CollectionEntry } from "astro:content";
-import { day } from "../lib/content";
+import { day, whereIs } from "../lib/content";
 interface Props { post: CollectionEntry<"writing">; blurb?: boolean }
 const { post, blurb = true } = Astro.props;
 const { title, link, date } = post.data;
+const where = link ? whereIs(link) : "";
 ---
 <li>
   <span>
-    <a href={link || `/writing/${post.id}`}>{title}{link && <><span class="ext" aria-hidden="true">↗</span><span class="vh"> (on another site)</span></>}</a>
+    <a href={link || `/writing/${post.id}`}>{title}{link && <><span class="ext" aria-hidden="true">↗</span><span class="vh"> (on {where || "another site"})</span></>}</a>{where && <span class="where" aria-hidden="true">{where}</span>}
     {blurb && post.data.blurb && <span class="n">{post.data.blurb}</span>}
   </span>
   <span class="r">{day(date)}</span>

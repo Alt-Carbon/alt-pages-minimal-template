@@ -20,6 +20,9 @@ export const Site = z.object({
   photo: z.string().default(""),
   social: z.array(link).default([]),
   goodreads: z.string().default(""),
+  // Where the owner publishes elsewhere; their newest posts join the Writing page (src/worker/core/posts.js).
+  medium: z.string().default(""),
+  substack: z.string().default(""),
   grain: z.boolean().default(true),
   // How the Reading page draws the shelf; one module each in src/scripts/shelf/.
   shelf: z.enum(["journal", "gallery", "stacks", "turn"]).catch("journal").default("journal"),
@@ -75,8 +78,9 @@ export const Reading = z.object({
   misc: z.array(z.object({ ...oldLink, kind: z.string().default("") })).default([]),
 });
 
-// The Writing page itself (its pieces are content/writing/*.md).
-export const WritingPage = z.object({ intro: z.string().default("") });
+// The Writing page itself (its pieces are content/writing/*.md). `hide` lists the addresses of
+// Medium or Substack posts to leave off the page.
+export const WritingPage = z.object({ intro: z.string().default(""), hide: z.array(z.string()).default([]) });
 
 export const Research = z.object({
   intro: z.string().default(""),

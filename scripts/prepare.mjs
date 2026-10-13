@@ -5,7 +5,8 @@
 //  3. Writes public/admin/config.yml, the editor's configuration, and copies the
 //     pinned Sveltia CMS bundle next to it.
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mediumSource, substackSource } from "../src/worker/core/posts.js";
 
 // Writes only when the content differs, so running this beside `astro dev` doesn't make the
 // dev server reload the page for files that didn't change.
@@ -17,12 +18,21 @@ function write(path, content) {
 const site = JSON.parse(readFileSync("content/site.json", "utf8"));
 const reading = JSON.parse(readFileSync("content/reading.json", "utf8"));
 
-// Until a Goodreads profile is set, the Reading page shows a sample shelf (Otis Chandler's: he founded
-// Goodreads). The editor says so in the two places it matters, and the warning goes away on the build
+// Until a Goodreads profile is set, the Reading page shows a sample shelf (Adithya's, Goodreads user 19054312).
+// The editor says so in the two places it matters, and the warning goes away on the build
 // after a profile is added. YAML double-quoted strings, so no raw double quotes inside.
 const SAMPLE = !String(site.goodreads || "").trim() && reading.show !== false;
 const sampleWarning = SAMPLE
-  ? "⚠️ Not set yet, so your Reading page is showing a sample shelf: Otis Chandler’s (he founded Goodreads), not yours. Paste your profile address here, or turn the Reading page off under Reading. "
+  ? "⚠️ Not set yet, so your Reading page is showing a sample shelf: Adithya’s, not yours. Paste your profile address here, or turn the Reading page off under Reading. "
+  : "";
+
+// The same for Medium and Substack: until one is set, the Writing page (if it has any pieces) also
+// shows sample posts, Ev Williams's Medium stories and the On Substack newsletter.
+const postSources = { medium: mediumSource(site.medium), substack: substackSource(site.substack) };
+const pieces = existsSync("content/writing") ? readdirSync("content/writing").filter((f) => f.endsWith(".md")).length : 0;
+const SAMPLE_POSTS = !postSources.medium && !postSources.substack && pieces > 0;
+const postsWarning = SAMPLE_POSTS
+  ? "⚠️ Neither Medium nor Substack is set yet, so the Writing page is showing sample posts (Ev Williams’s and On Substack’s), not yours. "
   : "";
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 const accents = JSON.parse(readFileSync("src/lib/accents.json", "utf8"));
@@ -47,6 +57,9 @@ if (!repo) console.warn("prepare: could not tell which GitHub repository this is
 const goodreadsId = (/(?:user\/show\/|review\/list(?:_rss)?\/|^)(\d+)/.exec(String(site.goodreads || "").trim()) || [])[1] || null;
 mkdirSync("public/reading", { recursive: true });
 write("public/reading/config.json", JSON.stringify({ userId: goodreadsId }));
+// And the posts sync, which Medium and Substack feeds to read.
+mkdirSync("public/writing/elsewhere", { recursive: true });
+write("public/writing/elsewhere/config.json", JSON.stringify(postSources));
 
 mkdirSync("src/generated", { recursive: true });
 // builtAt only moves when something else in the file changes.
@@ -103,6 +116,8 @@ singletons:
       - { label: Bookshelf style, name: shelf, widget: select, default: journal, hint: "How the Reading page shows your books.", options: [ { label: "Journal: a year-by-year reading log with your reviews", value: journal }, { label: "Gallery: large covers, a book opens in a panel tinted its own colour", value: gallery }, { label: "Stacks: books lying in piles by year, titles readable", value: stacks }, { label: "Turn: 3D books on a dark shelf that turn to face you", value: turn } ] }
       - { label: Accent colour, name: accent, widget: select, default: aerospace-orange, hint: "Used for focus rings, the update dot, the selected tab and link underlines. Bright neons are deepened in light mode so they stay visible on white.", options: [ ${accents.map((a) => `{ label: "${a.label}", value: ${a.id} }`).join(", ")} ] }
       - { label: Goodreads profile, name: goodreads, widget: string, required: false, hint: "${sampleWarning}Paste your Goodreads profile address. Your 'read' and 'currently reading' shelves appear on the Reading page. The profile must be public." }
+      - { label: Medium, name: medium, widget: string, required: false, hint: "${postsWarning}Your Medium profile address or @handle (a publication works too). Your newest stories join the Writing page with a small Medium chip, each linking to the story on Medium. Medium only shares the latest 10." }
+      - { label: Substack, name: substack, widget: string, required: false, hint: "${postsWarning}Your Substack address, e.g. yourname.substack.com or your own domain. Your newest posts join the Writing page with a small Substack chip, each linking to the post. Substack shares the latest 20." }
       - label: Advanced
         name: advanced
         widget: object
@@ -169,7 +184,8 @@ singletons:
     file: content/writing.json
     format: json
     fields:
-          - { label: Subtitle, name: intro, widget: text, required: false, hint: "A line under the Writing title. Also the page's description in search results and link previews. Your pieces are under Writing." }
+          - { label: Subtitle, name: intro, widget: text, required: false, hint: "A line under the Writing title. Also the page's description in search results and link previews. Your pieces are under Writing; posts from Medium and Substack join them once those are set under Site settings." }
+          - { label: Posts to leave out, name: hide, widget: list, required: false, collapsed: true, field: { label: Address, name: url, widget: string }, hint: "${postsWarning}Addresses of Medium or Substack posts that should not appear on the Writing page or the home page." }
   - name: research
     label: Research
     icon: science
@@ -211,4 +227,5 @@ collections:
       - { label: Body, name: body, widget: markdown }
 `;
 write("public/admin/config.yml", config);
-console.log(`prepare: repo ${repo || "(unknown)"}, owner ${owner || "(unknown)"}, goodreads ${goodreadsId || "(none)"}, editor config written`);
+const feeds = Object.values(postSources).filter(Boolean).map((s) => s.feed).join(" ") || "(none)";
+console.log(`prepare: repo ${repo || "(unknown)"}, owner ${owner || "(unknown)"}, goodreads ${goodreadsId || "(none)"}, posts ${feeds}, editor config written`);

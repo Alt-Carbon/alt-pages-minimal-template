@@ -1,10 +1,11 @@
 ---
 // The home page: a short letter, then what's recent. The letter is the greeting and intro from Site
 // settings, a line written from Experience (where they worked before), and the first line of Now.
-// The feed mixes the latest writing, research and finished books by date; books join in the browser
-// from the shelf's own data (the script below). Nothing here needs filling in separately.
+// The feed mixes the latest writing, research and finished books by date; books and posts from Medium
+// and Substack join in the browser from the site's own data (the script below). Nothing here needs
+// filling in separately.
 import Base from "../layouts/Base.astro";
-import { about, currentRole, day, inline, now, research, shown, site, writing } from "../lib/content";
+import { about, currentRole, day, inline, now, research, shown, site, writing, writingPage } from "../lib/content";
 
 const on = await shown();
 const posts = await writing();
@@ -34,30 +35,38 @@ const feed: Item[] = [
   </div>
   <section class="recent" aria-labelledby="recent-h" hidden={!feed.length && !on.has("reading")}>
     <h2 id="recent-h">Recent</h2>
-    <ul class="rows" data-reading={on.has("reading") ? "" : undefined}>
+    <ul class="rows" data-reading={on.has("reading") ? "" : undefined} data-writing={on.has("writing") ? "" : undefined} data-hide={JSON.stringify(writingPage.hide)}>
       {feed.slice(0, 6).map((i) => <li data-sort={i.sort}><span><a href={i.href}>{i.title}</a><span class="n">{i.section}</span></span><span class="r">{i.meta}</span></li>)}
     </ul>
   </section>
 </Base>
 
 <script>
-  // Finished books join the feed by the date they were read, from the site's own shelf data.
+  // Finished books and posts on Medium or Substack join the feed by date, from the site's own data.
   import { load, monthYear, short, esc } from "../scripts/shelf/shared";
+  import { insertByDate, loadPosts, visible, WHERE, day } from "../scripts/posts";
   document.addEventListener("astro:page-load", async () => {
-  const ul = document.querySelector<HTMLElement>(".recent ul[data-reading]");
-  if (ul) {
-    const v = await load();
-    // Each book goes in before the first row older than it; the rows already there stay as they are.
+    const ul = document.querySelector<HTMLElement>(".recent ul");
+    if (!ul) return;
+    const [v, pv] = await Promise.all(["reading" in ul.dataset ? load() : null, "writing" in ul.dataset ? loadPosts() : null]);
+    const rows: HTMLLIElement[] = [];
+    // Each row goes in before the first row older than it; the rows already there stay as they are.
     for (const b of (v?.read ?? []).filter((b) => b.readAt).slice(0, 6)) {
       const li = document.createElement("li");
-      li.className = "in";
       li.dataset.sort = b.readAt!;
       li.innerHTML = `<span><a href="/reading#book-${esc(b.id)}">${esc(short(b.title))}</a><span class="n">Reading · ${esc(b.author)}</span></span><span class="r">${monthYear(b.readAt)}</span>`;
-      const older = [...ul.children].find((row) => ((row as HTMLElement).dataset.sort || "") < b.readAt!);
-      ul.insertBefore(li, older ?? null);
+      rows.push(li);
     }
+    let hide: string[] = [];
+    try { hide = JSON.parse(ul.dataset.hide || "[]"); } catch {}
+    for (const p of pv ? visible(pv, hide).filter((p) => p.date).slice(0, 6) : []) {
+      const li = document.createElement("li");
+      li.dataset.sort = p.date!;
+      li.innerHTML = `<span><a href="${esc(p.url)}">${esc(p.title)}</a><span class="n">Writing · ${WHERE[p.source]}</span></span><span class="r">${day(p.date)}</span>`;
+      rows.push(li);
+    }
+    for (const li of rows) { li.className = "in"; insertByDate(ul, li); }
     while (ul.children.length > 6) ul.lastElementChild!.remove();
     ul.closest("section")!.hidden = !ul.children.length;
-  }
   });
 </script>

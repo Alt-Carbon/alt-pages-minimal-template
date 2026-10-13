@@ -12,14 +12,24 @@
 // Which profile: scripts/prepare.mjs writes the Goodreads id from content/site.json
 // to /reading/config.json at build time, so changing it in the editor is an
 // ordinary publish. With no profile, the sample shelf in public/ is served.
+//
+// The same again for the owner's Medium and Substack posts, under /writing/elsewhere
+// (the PostSync object, posts-object.js; the feeds named in /writing/elsewhere/config.json):
+//
+// GET  /writing/elsewhere.json         the posts, for the Writing page and the home page
+// GET  /writing/elsewhere/status       the object's report
+// POST /writing/elsewhere/sync         run a sync now
 
 import { coverSource } from "./core/feed.js";
 import { UA } from "./core/sync.js";
 import { allBooks } from "./store.js";
+import { postsName } from "./posts-store.js";
 
 export { ShelfSync } from "./sync-object.js";
+export { PostSync } from "./posts-object.js";
 
 const BASE = "/reading";
+const POSTS = "/writing/elsewhere";
 const YEAR = "public, max-age=31536000, immutable";
 const SYNC_GAP = 30 * 1000;
 const CONFIG_TTL = 60 * 1000;
@@ -65,6 +75,56 @@ async function profileId(env, request) {
   return userId;
 }
 
+// Which feeds the posts sync follows, from the built config, cached per isolate for a minute.
+// Null when neither Medium nor Substack is set.
+let postsConfig = { at: 0, sources: null };
+async function postSources(env, request) {
+  if (Date.now() - postsConfig.at < CONFIG_TTL) return postsConfig.sources;
+  let sources = null;
+  try {
+    const res = await env.ASSETS.fetch(new URL(`${POSTS}/config.json`, request.url));
+    if (res.ok) {
+      const c = await res.json();
+      if (c.medium || c.substack) sources = { medium: c.medium || null, substack: c.substack || null };
+    }
+  } catch {
+    /* no config: no sources */
+  }
+  postsConfig = { at: Date.now(), sources };
+  return sources;
+}
+
+// /writing/elsewhere.json and the routes under it.
+async function posts(request, env, ctx, url) {
+  const path = url.pathname.slice(POSTS.length).replace(/\/$/, "");
+  const sources = await postSources(env, request);
+  // Nothing connected: the sample posts in public/, and the config file itself.
+  if (!sources) {
+    if (path === "/status") return json({ sources: null, syncedAt: null });
+    if (path === "/sync") return json({ error: "No Medium or Substack address is set. Add one in the editor under Site settings." }, 409);
+    return env.ASSETS.fetch(request);
+  }
+  const name = postsName(sources);
+  const stub = env.POSTS.get(env.POSTS.idFromName(name));
+
+  if (path === "/sync") {
+    if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: { allow: "POST" } });
+    const st = await stub.status();
+    const started = !st.running && age(st.lastRun?.at) > SYNC_GAP ? await stub.kick(sources, "sync now", true) : "too soon";
+    return json({ started, status: st });
+  }
+  if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
+  if (path === "/status") return json({ sources, ...(await stub.status()) });
+  if (path === ".json") {
+    const view = (await env.BOOKS.get(`posts:${name}`, "json")) || (await stub.view());
+    if (view) return json(view, 200, "public, max-age=300");
+    const st = await stub.status();
+    if (!st.running && !st.lastRun) ctx.waitUntil(stub.kick(sources, "first visit"));
+    return json({ syncing: true, syncedAt: null, lastRun: st.lastRun, sources: {}, posts: [] }, 200, "no-store");
+  }
+  return env.ASSETS.fetch(request);
+}
+
 // Serves an image from KV, fetching it from Goodreads the first time.
 async function image(env, ctx, key, source) {
   const kept = await env.BOOKS.getWithMetadata(key, "arrayBuffer");
@@ -80,6 +140,7 @@ async function image(env, ctx, key, source) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname === `${POSTS}.json` || url.pathname.startsWith(`${POSTS}/`)) return posts(request, env, ctx, url);
     if (!url.pathname.startsWith(`${BASE}/`)) return stamp(request, await env.ASSETS.fetch(request));
     const path = url.pathname.slice(BASE.length).replace(/\/$/, "");
 
@@ -125,5 +186,7 @@ export default {
     const res = await env.ASSETS.fetch("https://assets.local/reading/config.json").catch(() => null);
     const userId = res?.ok ? (await res.json()).userId : null;
     if (userId) await object(env, userId).kick(userId, `cron ${event.cron}`);
+    const sources = await postSources(env, new Request("https://assets.local/"));
+    if (sources) await env.POSTS.get(env.POSTS.idFromName(postsName(sources))).kick(sources, `cron ${event.cron}`);
   },
 };

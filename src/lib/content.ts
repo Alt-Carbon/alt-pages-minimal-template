@@ -13,7 +13,7 @@ import { About, LINK_KINDS, Now, Reading, Research, Site, WritingPage } from "./
 
 // Typographic quotes: ' and " become curly in everything people type, links and markup aside.
 // Applied to every string in the content files except addresses and ids.
-const RAW = new Set(["url", "photo", "goodreads", "link", "owner", "repo", "authWorker", "accent", "updated", "date", "kind"]);
+const RAW = new Set(["url", "photo", "goodreads", "medium", "substack", "hide", "link", "owner", "repo", "authWorker", "accent", "updated", "date", "kind"]);
 export function smart(s: string): string {
   return s.split(/(\]\([^)]*\)|<[^>]*>)/).map((part, i) => (i % 2 ? part : part
     .replace(/(^|[\s([{\u2014\u2013-])"/g, "$1\u201c").replace(/"/g, "\u201d")
@@ -61,6 +61,22 @@ export function origin(url: URL): string {
   return import.meta.env.DEV ? url.origin : ORIGIN_TOKEN;
 }
 
+// Whether the owner has connected Medium or Substack: their posts join the Writing page in the browser.
+export const elsewhere = Boolean(site.medium.trim() || site.substack.trim());
+
+// Where a piece published on another site lives, for the small chip beside its title: the platform's
+// name when it is one the sync knows, else the host.
+export function whereIs(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    if (host === "medium.com" || host.endsWith(".medium.com")) return "Medium";
+    if (host === "substack.com" || host.endsWith(".substack.com")) return "Substack";
+    return host;
+  } catch {
+    return "";
+  }
+}
+
 // The accent picked in the editor, as a light-mode and a dark-mode colour.
 export const accent = accents.find((a) => a.id === site.accent) ?? accents[0];
 
@@ -90,7 +106,7 @@ export const pages = [
 // exception: it is never empty, only stale, so it has its own switch in the editor.
 export async function shown(): Promise<Set<string>> {
   const on = new Set(["about"]);
-  if ((await writing()).length) on.add("writing");
+  if ((await writing()).length || elsewhere) on.add("writing"); // posts from Medium or Substack fill it too
   if (research.items.length) on.add("research");
   if (reading.show) on.add("reading"); // a sample shelf shows until a Goodreads profile is connected
   if (now.show) on.add("now");

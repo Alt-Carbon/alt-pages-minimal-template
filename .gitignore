@@ -9,3 +9,4 @@ public/admin/sveltia-cms.js
 public/admin/config.yml
 src/generated/
 public/reading/config.json
+public/writing/elsewhere/config.json

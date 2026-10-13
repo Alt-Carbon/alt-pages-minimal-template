@@ -12,7 +12,7 @@ npm run preview    # serves dist/ the way Cloudflare will, at http://localhost:8
 npm test           # parser tests, no network
 ```
 
-`npm run dev` and `npm run build` first run `scripts/prepare.mjs`, which reads the repository name from git, writes the editor's configuration to `public/admin/config.yml`, and writes the Goodreads profile id to `public/reading/config.json`. None of these are committed.
+`npm run dev` and `npm run build` first run `scripts/prepare.mjs`, which reads the repository name from git, writes the editor's configuration to `public/admin/config.yml`, the Goodreads profile id to `public/reading/config.json` and the Medium and Substack feeds to `public/writing/elsewhere/config.json`. None of these are committed.
 
 ## Deploy
 
@@ -24,10 +24,11 @@ Everything on the site is a file under `content/`. The editor at `/admin` edits 
 
 | File | Page |
 | --- | --- |
-| `content/site.json` | Name, greeting, one-liner, social links, photo, accent colour, Goodreads profile, settings |
+| `content/site.json` | Name, greeting, one-liner, social links, photo, accent colour, Goodreads, Medium and Substack addresses, settings |
 | `content/now.json` | Now |
 | `content/about.json` | About |
 | `content/writing/*.md` | Writing: one Markdown file per piece, footnotes supported |
+| `content/writing.json` | Writing: the intro line, and posts from Medium or Substack to leave out |
 | `content/reading.json` | Reading: the intro line. Books come from Goodreads |
 | `content/research.json` | Research: papers, talks, datasets |
 
@@ -51,6 +52,10 @@ The site's address isn't known at build time, so these carry `https://__origin__
 
 The Reading page draws the shelf in the browser from that JSON, so books change without a rebuild, in the style picked under Site settings → Bookshelf style (one module each in `src/scripts/shelf/`; `shared.ts` loads the data and samples each cover's colour, `list.ts` is the plain list used for print). Until a profile is connected, a sample shelf is shown: a real public profile, regenerated with `npm run sample:shelf`. Everything else is static HTML.
 
+## Posts from Medium and Substack
+
+Set a Medium handle or address and a Substack address under Site settings, and the Worker reads their public RSS feeds (`medium.com/feed/@handle`, `<name>.substack.com/feed`) every 12 hours, keeps the newest posts in KV, and serves them at `/writing/elsewhere.json` (`src/worker/core/posts.js` parses, `posts-store.js` runs a sync, `posts-object.js` is the Durable Object with the alarm). The Writing page and the home page add those posts to their lists in the browser (`src/scripts/posts.ts`), each with a small chip saying where it lives and a link to the post there. A feed that fails keeps its last good posts. Medium shares its 10 newest stories and Substack its 20 newest posts, so older pieces still need an entry under Writing with "Published elsewhere" set; those get the same chip. Posts to leave out are listed under Writing page → Posts to leave out. With nothing set, the sample posts in `public/writing/elsewhere.json` are served, regenerated with `npm run sample:posts`. `GET /writing/elsewhere/status` reports the last run; `POST /writing/elsewhere/sync` asks for one now.
+
 ## Layout
 
 | Path | What |
@@ -61,7 +66,7 @@ The Reading page draws the shelf in the browser from that JSON, so books change 
 | `src/scripts/shelf.ts` | Renders books from `/reading/view.json` in the browser |
 | `src/styles/site.css` | The whole stylesheet |
 | `src/lib/` | Content schemas, the loader every page uses, accent colours, the preview-card renderer |
-| `src/worker/` | The reading sync (Worker entry, sync object, Goodreads feed parser) and the address stamping for pages and feeds |
+| `src/worker/` | The reading sync (Worker entry, sync object, Goodreads feed parser), the posts sync (Medium and Substack) and the address stamping for pages and feeds |
 | `public/admin/` | The editor's entry page; bundle and config are generated |
 | `test/` | Parser and sync tests |
 

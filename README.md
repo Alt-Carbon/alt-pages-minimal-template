@@ -9,14 +9,16 @@ npm install
 npm run dev        # http://localhost:4321
 npm run build      # writes dist/
 npm run preview    # serves dist/ the way Cloudflare will, at http://localhost:8787
-npm test           # parser tests, no network
+npm test           # parser, sign-in, update and hello tests, no network
 ```
 
-`npm run dev` and `npm run build` first run `scripts/prepare.mjs`, which reads the repository name from git, writes the editor's configuration to `public/admin/config.yml`, the Goodreads profile id to `public/reading/config.json` and the Medium and Substack feeds to `public/writing/elsewhere/config.json`. None of these are committed.
+`npm run dev` and `npm run build` first run `scripts/prepare.mjs`, which reads the repository name from git, writes the editor's configuration to `public/admin/config.yml`, the Goodreads profile id to `public/reading/config.json`, the Medium and Substack feeds to `public/writing/elsewhere/config.json` and the dashboard address to `public/hello/config.json`. None of these are committed.
+
+In `npm run dev` the editor at `/admin` offers "Work with Local Repository" (Chrome, Edge and other Chromium browsers) and edits the files on your computer; GitHub sign-in is only needed on the published site.
 
 ## Deploy
 
-`wrangler.jsonc` describes the Worker: the built pages as static assets, the reading sync script, a KV namespace, a Durable Object and a 12-hour cron. `npm run deploy` builds and deploys to whichever Cloudflare account wrangler is logged into.
+`wrangler.jsonc` describes the Worker: the built pages as static assets, the reading sync script, a KV namespace, a Durable Object and a 12-hour cron. `workers_dev` is set so the free `<name>.<account>.workers.dev` address stays on after the Deploy button. `npm run deploy` builds and deploys to whichever Cloudflare account wrangler is logged into.
 
 ## Content
 
@@ -56,9 +58,15 @@ The Reading page draws the shelf in the browser from that JSON, so books change 
 
 Set a Medium handle or address and a Substack address under Site settings, and the Worker reads their public RSS feeds (`medium.com/feed/@handle`, `<name>.substack.com/feed`) every 12 hours, keeps the newest posts in KV, and serves them at `/writing/elsewhere.json` (`src/worker/core/posts.js` parses, `posts-store.js` runs a sync, `posts-object.js` is the Durable Object with the alarm). The Writing page and the home page add those posts to their lists in the browser (`src/scripts/posts.ts`), each with a small chip saying where it lives and a link to the post there. A feed that fails keeps its last good posts. Medium shares its 10 newest stories and Substack its 20 newest posts, so older pieces still need an entry under Writing with "Published elsewhere" set; those get the same chip. Posts to leave out are listed under Writing page → Posts to leave out. With nothing set, the sample posts in `public/writing/elsewhere.json` are served, regenerated with `npm run sample:posts`. `GET /writing/elsewhere/status` reports the last run; `POST /writing/elsewhere/sync` asks for one now.
 
-## Signing in without the company
+## Editor sign-in
 
-The editor signs in with GitHub, which needs a small server to turn a login code into a token. By default that is the company's sign-in service (Advanced → Sign-in service). Turn on Advanced → **Sign in through this site** and the site's own Worker is that server instead (`src/worker/auth.js`): publish, open `/auth/setup` on your site, and press the button. GitHub creates a private GitHub App on your account through its app manifest flow, sends the app's keys back to your Worker, which keeps them in its KV namespace, and then asks you to install the app on this repository. From then on `/admin` signs in through your own site, and nothing about it depends on anyone else. Only the owner of the repository named in the editor's config can complete setup, and a token is only ever handed to this site's own origin. If sign-in stops working, open `/auth/setup` again and create a new app.
+The editor signs in with GitHub, which needs a small server to turn a login code into a token. That server is the site's own Worker (`src/worker/auth.js`), so signing in depends on nothing run by the company. The first time, open `/auth/setup` on your site and press the button (pressing "Sign in with GitHub" in the editor before then shows the same page). GitHub creates a private GitHub App on your account through its app manifest flow, sends the app's keys back to your Worker, which keeps them in its KV namespace, and then asks you to install the app on this repository. From then on `/admin` signs in through your own site. Only the owner of the repository named in the editor's config can complete setup, and a token is only ever handed to this site's own origin. If sign-in stops working, open `/auth/setup` again and create a new app.
+
+Advanced → Other sign-in service points the editor at a different sign-in server instead, for someone who runs their own. Empty is the normal setting.
+
+## Telling the dashboard where the site lives
+
+Once a day, after answering a page, the Worker sends the company dashboard the site's address, its repository, its owner's GitHub login and which template it was made from (`src/worker/hello.js`: a POST of `{ host, origin, repo, owner, template }` to `<dashboard>/api/hello`, then a `hello:sent` key in KV that expires after a day, or after an hour if the dashboard could not be reached). Nothing about visitors is sent, nothing waits for it, and if the dashboard is down the page is unaffected. The address is Advanced → Company dashboard (`advanced.dashboard` in `content/site.json`), written into `public/hello/config.json` at build time; empty it and the site never reports. A `site.json` without that key at all reports to the company's dashboard.
 
 ## Layout
 
@@ -71,9 +79,20 @@ The editor signs in with GitHub, which needs a small server to turn a login code
 | `src/styles/site.css` | The whole stylesheet |
 | `src/lib/` | Content schemas, the loader every page uses, accent colours, the preview-card renderer |
 | `src/worker/` | The reading sync (Worker entry, sync object, Goodreads feed parser), the posts sync (Medium and Substack) and the address stamping for pages and feeds |
+| `src/worker/auth.js`, `src/worker/hello.js` | The editor's sign-in; the daily note to the dashboard |
 | `public/admin/` | The editor's entry page; bundle and config are generated |
-| `test/` | Parser and sync tests |
+| `scripts/` | `prepare.mjs` (runs before every build), `update-from-template.mjs` (the weekly update), the sample shelf and posts generators |
+| `.github/workflows/update.yml` | The weekly update |
+| `test/` | Parser, sync, sign-in, update and hello tests |
 
 ## Updates
 
-When this template changes, the Alt Pages dashboard opens a pull request on your repository with the changed files. Your content, settings and the values the Deploy button wrote into your configuration are never part of it. Merge it and your site rebuilds in about a minute; close it to skip that update.
+Once a week, GitHub runs `.github/workflows/update.yml` on your repository, with nothing run by the company involved. `scripts/update-from-template.mjs` fetches the main branch of the template named in `package.json` (`portfolio.templateRepo`) and copies its files over yours, except:
+
+- `content/` (your words and settings) and `public/media/` (your photos and files) are never touched;
+- `.github/` is never touched, because GitHub does not let a workflow change workflow files;
+- `wrangler.jsonc` becomes the template's, with your Worker's name, your KV namespace id and any routes you added put back; `package.json` and `package-lock.json` keep your package name.
+
+Files the template no longer has are removed, again except those above, so changes made by hand to the site's code are replaced. The workflow then runs `npm ci`, `npm run build` and `npm test`; only if all three pass does it commit "Update from the template (<commit>)" to main, which redeploys the site. If nothing changed, it does nothing. If the build or tests fail, nothing is pushed and the run shows as failed on GitHub's Actions tab; the site stays as it was. Turn updates off in the editor under Site settings → Advanced → Get improvements automatically, or run one now from the Actions tab (Update from the template → Run workflow). `node scripts/update-from-template.mjs --dry-run` lists what an update would change.
+
+The template repository must be public for this to work, as it must for the Deploy button.

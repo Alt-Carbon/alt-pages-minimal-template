@@ -8,13 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap">
+<link rel="stylesheet" href="./editor.css">
 </head>
 <body>
 <div id="app"></div>
 <script type="module">
-  // Our own editor (Alt-Carbon/alt-pages-editor, first pass), alongside Sveltia at /admin while it
+  // Our own editor (alt-pages-editor), alongside Sveltia at /admin while it
   // is being tried. Same content, same sign-in, same configuration (/admin/config.yml).
-  // editor.js is the editor's bundle (npm run bundle there), copied here by hand for now.
+  // editor.js and editor.css are the editor's build (npm run bundle there), copied here by hand for now.
   import { start } from "./editor.js";
   start(document.getElementById("app"));
 </script>

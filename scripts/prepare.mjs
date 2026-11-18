@@ -8,6 +8,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { mediumSource, substackSource } from "../src/worker/core/posts.js";
+import { profileNameFrom, resolveProfileName, userIdFrom } from "../src/worker/core/feed.js";
 
 // Writes only when the content differs, so running this beside `astro dev` doesn't make the
 // dev server reload the page for files that didn't change.
@@ -55,9 +56,15 @@ const owner = repo.split("/")[0] || adv.owner || site.owner || "";
 if (!repo) console.warn("prepare: could not tell which GitHub repository this is. Set `repo` in content/site.json (owner/name) so the editor can sign in.");
 
 // The reading sync reads which Goodreads profile to follow from this file.
-const goodreadsId = (/(?:user\/show\/|review\/list(?:_rss)?\/|^)(\d+)/.exec(String(site.goodreads || "").trim()) || [])[1] || null;
+// A short address (goodreads.com/asharao) has no number in it: look the number up now, and if
+// that fails here, the site's Worker looks it up by name on its first visit.
+const goodreadsInput = String(site.goodreads || "").trim();
+let goodreadsId = userIdFrom(goodreadsInput);
+const goodreadsName = goodreadsId ? null : profileNameFrom(goodreadsInput);
+if (goodreadsName) goodreadsId = await resolveProfileName(goodreadsName, (u, o) => fetch(u, { ...o, signal: AbortSignal.timeout(5000) })).catch(() => null);
+if (goodreadsInput && !goodreadsId && !goodreadsName) console.warn(`prepare: "${goodreadsInput}" is not a Goodreads profile address; the Reading page stays empty until it is fixed.`);
 mkdirSync("public/reading", { recursive: true });
-write("public/reading/config.json", JSON.stringify({ userId: goodreadsId }));
+write("public/reading/config.json", JSON.stringify({ userId: goodreadsId, ...(goodreadsName && !goodreadsId ? { name: goodreadsName } : {}) }));
 // And the posts sync, which Medium and Substack feeds to read.
 mkdirSync("public/writing/elsewhere", { recursive: true });
 write("public/writing/elsewhere/config.json", JSON.stringify(postSources));
@@ -130,9 +137,9 @@ singletons:
       - { label: Background grain, name: grain, widget: boolean, default: true, required: false, hint: "A faint paper-like grain behind the whole site. Turn off for a plain background." }
       - { label: Bookshelf style, name: shelf, widget: select, default: journal, hint: "How the Reading page shows your books.", options: [ { label: "Journal: a year-by-year reading log with your reviews", value: journal }, { label: "Gallery: large covers, a book opens in a panel tinted its own colour", value: gallery }, { label: "Stacks: books lying in piles by year, titles readable", value: stacks }, { label: "Turn: 3D books on a dark shelf that turn to face you", value: turn } ] }
       - { label: Accent colour, name: accent, widget: select, default: aerospace-orange, hint: "For links, the selected tab and focus rings.", options: [ ${accents.map((a) => `{ label: "${a.label}", value: ${a.id}, color: "${a.light}" }`).join(", ")} ] }
-      - { label: Goodreads profile, name: goodreads, widget: string, required: false, hint: "Your Goodreads profile address. It must be public.${sampleWarning}" }
-      - { label: Medium, name: medium, widget: string, required: false, hint: "Your Medium address or @handle. Shows your 10 newest stories.${postsWarning}" }
-      - { label: Substack, name: substack, widget: string, required: false, hint: "Your Substack address, e.g. yourname.substack.com. Shows your 20 newest posts.${postsWarning}" }
+      - { label: Goodreads profile, name: goodreads, widget: string, required: false, sync: reading, hint: "Open your profile on Goodreads and copy its address, e.g. goodreads.com/user/show/12345678-asha-rao. The profile must be public.${sampleWarning}" }
+      - { label: Medium, name: medium, widget: string, required: false, sync: medium, hint: "Your Medium address or @handle. Shows your 10 newest stories.${postsWarning}" }
+      - { label: Substack, name: substack, widget: string, required: false, sync: substack, hint: "Your Substack address, e.g. yourname.substack.com. Shows your 20 newest posts.${postsWarning}" }
       - label: Advanced
         name: advanced
         widget: object

@@ -76,6 +76,8 @@ const ld = page === "essay"
 <ClientRouter fallback="none" />
 </head>
 <body class={bodyClass}>
+  <!-- The owner's content/custom.css: first in the body, so it comes after every stylesheet Astro adds to the head (and wins), yet still loads before anything is drawn. -->
+  <link rel="stylesheet" href="/custom.css" />
 <a class="skip" href="#content">Skip to content</a>
 <div class="wrap">
   <Rail page={page} fresh={fresh} transition:name="rail" transition:animate="none" />

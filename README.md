@@ -96,3 +96,7 @@ Once a week, GitHub runs `.github/workflows/update.yml` on your repository, with
 Files the template no longer has are removed, again except those above, so changes made by hand to the site's code are replaced. The workflow then runs `npm ci`, `npm run build` and `npm test`; only if all three pass does it commit "Update from the template (<commit>)" to main, which redeploys the site. If nothing changed, it does nothing. If the build or tests fail, nothing is pushed and the run shows as failed on GitHub's Actions tab; the site stays as it was. Turn updates off in the editor under Site settings → Advanced → Get improvements automatically, or run one now from the Actions tab (Update from the template → Run workflow). `node scripts/update-from-template.mjs --dry-run` lists what an update would change.
 
 The template repository must be public for this to work, as it must for the Deploy button.
+
+## Changing the look
+
+Your own styles go in `content/custom.css`. Every page loads it after the template's styles, and template updates never touch it, so changes there last. `AGENTS.md` lists the colours, fonts and parts you can change, and the rules for coding assistants (Claude Code, Codex, Copilot) working in this repository: above all, that anything outside `content/`, `public/media/` and `.github/` is replaced by the weekly update.

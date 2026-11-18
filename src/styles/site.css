@@ -7,7 +7,7 @@
    - the drawn objects on the Reading shelf (spine and cover geometry).
    Type: a sans for everything (San Francisco, or Geist without it), a serif accent face
          (Iowan Old Style, or EB Garamond without it). Three roles:
-         --font-display: page and section headings, the name in the rail, the home intro;
+         --font-display: page and section headings, the name in the rail, the home letter;
          --font-text: what you read (body, notes, book titles);
          --font-ui: what you scan or press (the rail, tabs, buttons, dates, captions).
    Size: --fs-* steps only. Headings scale fluidly with clamp() instead of breakpoints.
@@ -150,7 +150,7 @@ dt{padding-top:var(--space-4)}
 .skip:focus{left:var(--space-4)}
 
 /* Home */
-/* Home: a letter in the display face (greeting, intro, where they worked, what they're doing now), then
+/* Home: a letter in the display face (greeting, one-liner, where they worked, what they're doing now), then
    a "Recent" list mixing writing, research and books by date. */
 .home .letter{max-width:var(--measure)}
 .home .letter p{font-family:var(--font-display);font-size-adjust:var(--display-adjust);font-size:var(--fs-lead);line-height:var(--lh-normal);letter-spacing:var(--track-display);margin:0 0 var(--space-5);text-wrap:pretty}

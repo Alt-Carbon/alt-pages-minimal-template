@@ -1,0 +1,18 @@
+---
+// Your pages (content/pages/*.md, made in the editor under Your pages): a title, an optional photo
+// and the text. A page switched off is still built, but its address answers "not found".
+import { render } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { ownPages, summary } from "../lib/content";
+
+export async function getStaticPaths() {
+  return (await ownPages()).map((p) => ({ params: { page: p.id }, props: { entry: p } }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+<Base page={`page:${entry.id}`} title={entry.data.title} description={entry.data.description || summary(entry)} image="/og/home.png" off={!entry.data.show}>
+  <h1>{entry.data.title}</h1>
+  {entry.data.photo && <div class="photo"><img src={entry.data.photo} alt="" width="400" height="400"></div>}
+  <Content />
+</Base>

@@ -8,16 +8,18 @@ import { ClientRouter } from "astro:transitions";
 import Rail from "../components/Rail.astro";
 import DevFontSwitch from "../components/DevFontSwitch.astro";
 import ThemeSwitch from "../components/ThemeSwitch.astro";
-import { about, accent, currentRole, day, freshness, origin, owner, pages, repo, shown, site, social, template } from "../lib/content";
+import { about, accent, currentRole, day, freshness, origin, owner, pages, repo, shown, site, social, switchedOff, template } from "../lib/content";
 
 // SEO and link previews are generated here from the content, so nobody fills them in by hand.
 // `image` is the preview card under /og (see src/pages/og), `published` marks an essay.
-interface Props { title?: string; description?: string; page: string; bodyClass?: string; image?: string; published?: Date }
+interface Props { title?: string; description?: string; page: string; bodyClass?: string; image?: string; published?: Date; off?: boolean }
 const { title, description, page, bodyClass = "", image = `/og/${page === "404" ? "home" : page}.png`, published } = Astro.props;
 const fresh = await freshness();
 // A page that is switched off or empty still exists at its address, but search engines skip it.
 const on = await shown();
-const hidden = pages.some((p) => p.id === page && !on.has(p.id));
+// Switched off by the owner: the Worker answers "not found" for it (the alt-pages-off marker below).
+const off = Astro.props.off ?? switchedOff(page);
+const hidden = off || pages.some((p) => p.id === page && !on.has(p.id));
 const fullTitle = title ? `${title} · ${site.name}` : site.name;
 const desc = description || `${site.oneLiner} ${site.intro}`.trim();
 const base = origin(Astro.url);
@@ -50,6 +52,7 @@ const ld = page === "essay"
 <meta name="description" content={desc}>
 <meta name="author" content={site.name}>
 {hidden && <meta name="robots" content="noindex">}
+{off && <meta name="alt-pages-off" content="">}
 {page !== "404" && <link rel="canonical" href={url}>}
 <meta property="og:site_name" content={site.name}>
 <meta property="og:title" content={title || site.name}>

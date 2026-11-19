@@ -25,6 +25,7 @@ So a change anywhere else, such as `src/`, `public/` or `scripts/`, is undone at
 | Hiding a page | its `"show": false` (`content/about.json`, `writing.json`, `research.json`, `reading.json`, `now.json`), or the page's switch in the editor | Yes |
 | A new page (Projects, Talks…) | a Markdown file in `content/pages/` (`title`, optional `show`, `photo`, `description`, then the text), or Your pages in the editor | Yes |
 | A setting the template already has (accent colour, …) | `content/site.json`, or the editor | Yes |
+| Which page a field is edited on, in the editor | `site_pages` in `scripts/prepare.mjs` | **No** (template code) |
 | A different layout or new behaviour | `src/` | **No**, see below |
 
 If what they ask for needs `src/`, tell them, before you change anything, that the weekly update will undo it. Their choice is to keep updates (and lose the change), or turn updates off and keep the change: `"advanced": { "autoUpdate": false }` in `content/site.json`, or Site settings → Advanced → "Get improvements automatically" in the editor. Updates off means no more fixes from the template. Never turn them off without asking.
@@ -66,6 +67,15 @@ Visitors can switch between light and dark (the buttons at the bottom of the rai
 ### Parts of the page
 
 `.rail` the left menu · `.home` the home page · `.essay` a piece of writing · `.rows` lists of recent things · `.xp` Experience on About · `.pubs` Research · `.booklist` and the shelf styles for Reading · `.photo` the photo
+
+## The editor's marks: data-field
+
+The editor at `/admin` shows the site beside its form. Hovering a field outlines the part of the page that shows it, and clicking a part of the page opens its field. It finds them by a `data-field` attribute on the element that shows the value:
+
+- `data-field="site.greeting"`: a field of a content file, as `<file's name in the editor config>.<field>` (`site`, `about`, `now`, `research`, `reading`, `writing_page`).
+- `data-field="writing:<slug>"`: one piece of writing (a row, a card); `data-field="writing:<slug>.title"` its title. Your pages use `pages:<slug>`.
+
+When you change markup in `src/`, keep these attributes on the element that shows the value. An element whose only content is the value's text (no child elements) also shows what the owner types, live. Missing marks break nothing; that part just doesn't light up.
 
 ## Ask first, or leave alone
 

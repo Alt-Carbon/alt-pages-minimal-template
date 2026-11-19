@@ -218,5 +218,5 @@ export const social = () => site.social.map((l) => {
   const web = /^https?:/.test(l.url);
   const x = /^(x|twitter)$/i.test(l.label.trim());
   const label = x ? `<span aria-hidden="true">𝕏</span><span class="vh">X</span>` : l.label;
-  return `<a href="${l.url}"${web ? ' target="_blank" rel="noopener noreferrer"' : ""}>${label}${web ? '<span class="vh"> (opens in a new tab)</span>' : ""}</a>`;
+  return `<a data-field="site.social" href="${l.url}"${web ? ' target="_blank" rel="noopener noreferrer"' : ""}>${label}${web ? '<span class="vh"> (opens in a new tab)</span>' : ""}</a>`;
 }).join("");

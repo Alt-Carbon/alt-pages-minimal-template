@@ -19,24 +19,24 @@ const list = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1)
 const before = orgs.length ? `${currentRole ? `Before ${currentRole.org}, I` : "I"} worked at ${list(orgs)}.` : "";
 
 // The feed before books. Research has only a year, so it sorts as mid-year.
-type Item = { title: string; href: string; section: string; meta: string; sort: string };
+type Item = { title: string; href: string; section: string; meta: string; sort: string; mark?: string };
 const feed: Item[] = [
-  ...(on.has("writing") ? posts.map((p) => ({ title: p.data.title, href: p.data.link || `/writing/${p.id}`, section: "Writing", meta: day(p.data.date), sort: p.data.date.toISOString().slice(0, 10) })) : []),
-  ...(on.has("research") ? res.map((r) => ({ title: r.title, href: r.url || "/research", section: `Research · ${r.kind}`, meta: String(r.year), sort: `${r.year}-06-30` })) : []),
+  ...(on.has("writing") ? posts.map((p) => ({ title: p.data.title, href: p.data.link || `/writing/${p.id}`, section: "Writing", meta: day(p.data.date), sort: p.data.date.toISOString().slice(0, 10), mark: `writing:${p.id}` })) : []),
+  ...(on.has("research") ? res.map((r) => ({ title: r.title, href: r.url || "/research", section: `Research · ${r.kind}`, meta: String(r.year), sort: `${r.year}-06-30`, mark: "research.items" })) : []),
 ].sort((a, b) => b.sort.localeCompare(a.sort));
 ---
 <Base page="home">
   <h1 class="vh">{site.name}</h1>
   <div class="letter">
-    <p class="hi">{site.greeting || `Hi, I’m ${site.name.split(" ")[0]}.`}</p>
-    <p>{site.oneLiner}</p>
-    {before && <p>{before}</p>}
-    {nowLine && <p>Right now: <Fragment set:html={inline(nowLine.charAt(0).toLowerCase() + nowLine.slice(1))} /> <a href="/now">Know more</a></p>}
+    <p class="hi" data-field="site.greeting">{site.greeting || `Hi, I’m ${site.name.split(" ")[0]}.`}</p>
+    <p data-field="site.oneLiner">{site.oneLiner}</p>
+    {before && <p data-field="about.experience">{before}</p>}
+    {nowLine && <p data-field="now.groups">Right now: <Fragment set:html={inline(nowLine.charAt(0).toLowerCase() + nowLine.slice(1))} /> <a href="/now">Know more</a></p>}
   </div>
   <section class="recent" aria-labelledby="recent-h" hidden={!feed.length && !on.has("reading")}>
     <h2 id="recent-h">Recent</h2>
     <ul class="rows" data-reading={on.has("reading") ? "" : undefined} data-writing={on.has("writing") ? "" : undefined} data-hide={JSON.stringify(writingPage.hide)}>
-      {feed.slice(0, 6).map((i) => <li data-sort={i.sort}><span><a href={i.href}>{i.title}</a><span class="n">{i.section}</span></span><span class="r">{i.meta}</span></li>)}
+      {feed.slice(0, 6).map((i) => <li data-sort={i.sort} data-field={i.mark}><span><a href={i.href}>{i.title}</a><span class="n">{i.section}</span></span><span class="r">{i.meta}</span></li>)}
     </ul>
   </section>
 </Base>

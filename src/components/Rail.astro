@@ -7,7 +7,7 @@ const current = page === "essay" ? "writing" : page;
 const pages = await menu();
 ---
 <nav class="rail" aria-label="Site">
-  <a class="name" href="/">{site.name}</a>
+  <a class="name" href="/" data-field="site.name">{site.name}</a>
   <div class="links">
     {/* The current page's highlight is a layer behind the link (::before in site.css); the script below
         slides it from the old page's link to this one. The link text itself stays still. */}

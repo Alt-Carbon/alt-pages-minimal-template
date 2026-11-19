@@ -4,11 +4,11 @@ import { day, inline, now, site } from "../lib/content";
 ---
 <Base page="now" title="Now" description={`What ${site.name} is doing now. Updated ${day(now.updated)}.`}>
   <h1>Now</h1>
-  <p class="stamp">Updated {day(now.updated)}</p>
+  <p class="stamp" data-field="now.updated">Updated {day(now.updated)}</p>
   {now.groups.map((g) => (
     <>
-      <h2>{g.heading}</h2>
-      <ul>{g.items.map((i) => <li><Fragment set:html={inline(i)} /></li>)}</ul>
+      <h2 data-field="now.groups">{g.heading}</h2>
+      <ul data-field="now.groups">{g.items.map((i) => <li><Fragment set:html={inline(i)} /></li>)}</ul>
     </>
   ))}
   <p class="aside">This is a <a href="https://nownownow.com/about">now page</a>.</p>

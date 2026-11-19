@@ -4,12 +4,12 @@ import { about, inline, site, years } from "../lib/content";
 ---
 <Base page="about" title="About" description={about.shortBio}>
   <h1>About</h1>
-  {site.photo && <div class="photo"><img src={site.photo} alt={`Photo of ${site.name}`} width="400" height="400"></div>}
-  {about.paragraphs.map((p) => <p><Fragment set:html={inline(p)} /></p>)}
+  {site.photo && <div class="photo" data-field="site.photo"><img src={site.photo} alt={`Photo of ${site.name}`} width="400" height="400"></div>}
+  {about.paragraphs.map((p) => <p data-field="about.paragraphs"><Fragment set:html={inline(p)} /></p>)}
   {(about.experience.length > 0 || about.cv) && (
     <section aria-labelledby="xp-h">
-      <div class="sh"><h2 id="xp-h">Experience</h2>{about.cv && <a class="all" href={about.cv}>CV (PDF)</a>}</div>
-      <ul class="xp">
+      <div class="sh"><h2 id="xp-h">Experience</h2>{about.cv && <a class="all" href={about.cv} data-field="about.cv">CV (PDF)</a>}</div>
+      <ul class="xp" data-field="about.experience">
         {about.experience.map((e) => (
           <li>
             <span class="when">{years(e)}</span>
@@ -19,12 +19,12 @@ import { about, inline, site, years } from "../lib/content";
       </ul>
     </section>
   )}
-  {about.contact && <><h2>Contact</h2><p><Fragment set:html={inline(about.contact)} /></p></>}
-  {about.facts.length > 0 && <dl>{about.facts.map((f) => <><dt>{f.label}</dt><dd><Fragment set:html={inline(f.value)} /></dd></>)}</dl>}
+  {about.contact && <><h2>Contact</h2><p data-field="about.contact"><Fragment set:html={inline(about.contact)} /></p></>}
+  {about.facts.length > 0 && <dl data-field="about.facts">{about.facts.map((f) => <><dt>{f.label}</dt><dd><Fragment set:html={inline(f.value)} /></dd></>)}</dl>}
   {about.shortBio && (
     <section class="bio" aria-labelledby="bio-h">
       <div class="sh"><h2 id="bio-h">Short bio</h2><button class="all copy" type="button" data-copy="bio-text" hidden>Copy</button></div>
-      <p id="bio-text">{about.shortBio}</p>
+      <p id="bio-text" data-field="about.shortBio">{about.shortBio}</p>
     </section>
   )}
 </Base>

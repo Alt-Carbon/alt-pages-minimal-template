@@ -8,7 +8,7 @@ const posts = await writing();
 ---
 <Base page="writing" title="Writing" description={writingPage.intro || `Essays and notes by ${site.name}.`}>
   <h1>Writing</h1>
-  {writingPage.intro && <p class="deck"><Fragment set:html={inline(writingPage.intro)} /></p>}
+  {writingPage.intro && <p class="deck" data-field="writing_page.intro"><Fragment set:html={inline(writingPage.intro)} /></p>}
   <ul class="rows" id="writing-rows" data-hide={JSON.stringify(writingPage.hide)}>
     {posts.map((p) => <PostRow post={p} />)}
   </ul>

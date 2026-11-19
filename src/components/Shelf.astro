@@ -43,7 +43,7 @@ import "../styles/shelf/turn.css";
   if (!view || (!view.read.length && !view.reading.length)) {
     src.textContent = view?.syncing || root.dataset.goodreads
       ? "Reading the shelf from Goodreads for the first time. This takes under a minute; reload to see it."
-      : "No Goodreads profile connected yet. Add one in the editor under Site settings.";
+      : "No Goodreads profile connected yet. Add one in the editor, on the Reading page.";
   } else {
     const shelf = await loadAll(view);
     let render: Style = renderList;

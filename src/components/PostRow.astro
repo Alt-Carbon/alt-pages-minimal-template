@@ -9,7 +9,7 @@ const { post, blurb = true } = Astro.props;
 const { title, link, date } = post.data;
 const where = link ? whereIs(link) : "";
 ---
-<li>
+<li data-field={`writing:${post.id}`}>
   <span>
     <a href={link || `/writing/${post.id}`}>{title}{link && <><span class="ext" aria-hidden="true">↗</span><span class="vh"> (on {where || "another site"})</span></>}</a>{where && <span class="where" aria-hidden="true">{where}</span>}
     {blurb && post.data.blurb && <span class="n">{post.data.blurb}</span>}

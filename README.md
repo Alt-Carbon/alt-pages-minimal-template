@@ -26,7 +26,7 @@ Everything on the site is a file under `content/`. The editor at `/admin` edits 
 
 | File | Page |
 | --- | --- |
-| `content/site.json` | Name, greeting, one-liner, social links, photo, accent colour, Goodreads, Medium and Substack addresses, settings |
+| `content/site.json` | Name, greeting, one-liner, social links, photo, accent colour, layout (menu on the side or top, photo on the home page, text size), Goodreads, Medium and Substack addresses, settings |
 | `content/now.json` | Now |
 | `content/about.json` | About |
 | `content/writing/*.md` | Writing: one Markdown file per piece, footnotes supported |
@@ -98,5 +98,7 @@ Files the template no longer has are removed, again except those above, so chang
 The template repository must be public for this to work, as it must for the Deploy button.
 
 ## Changing the look
+
+Three layout choices need no CSS: Site settings → Menu (a list on the left, or a row along the top), Text size (normal or a step smaller) and, under Home, Photo on the home page. They are `menu`, `textSize` and `homePhoto` in `content/site.json`; Base.astro turns them into `data-menu` and `data-text` on `<html>`, which `src/styles/site.css` styles.
 
 Your own styles go in `content/custom.css`. Every page loads it after the template's styles, and template updates never touch it, so changes there last. `AGENTS.md` lists the colours, fonts and parts you can change, and the rules for coding assistants (Claude Code, Codex, Copilot) working in this repository: above all, that anything outside `content/`, `public/media/` and `.github/` is replaced by the weekly update.

@@ -1,6 +1,6 @@
 ---
 // The home page: a short letter, then what's recent. The letter is the greeting and one-liner from
-// Site settings, a line written from Experience (where they worked before), and the first line of Now.
+// Site settings (with the photo beside it if "Photo on the home page" is on), a line written from Experience (where they worked before), and the first line of Now.
 // The feed mixes the latest writing, research and finished books by date; books and posts from Medium
 // and Substack join in the browser from the site's own data (the script below). Nothing here needs
 // filling in separately.
@@ -28,6 +28,7 @@ const feed: Item[] = [
 <Base page="home">
   <h1 class="vh">{site.name}</h1>
   <div class="letter">
+    {site.homePhoto && site.photo && <div class="photo" data-field="site.photo"><img src={site.photo} alt={`Photo of ${site.name}`} width="400" height="400"></div>}
     <p class="hi" data-field="site.greeting">{site.greeting || `Hi, I’m ${site.name.split(" ")[0]}.`}</p>
     <p data-field="site.oneLiner">{site.oneLiner}</p>
     {before && <p data-field="about.experience">{before}</p>}

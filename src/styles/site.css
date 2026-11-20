@@ -76,6 +76,12 @@
  --dur-hover:120ms;--dur-state:220ms;--dur-page:320ms;
  --ease:var(--dur-hover) var(--ease-out)} /* the common hover transition: duration and curve */
 
+/* Text size "small" (Site settings): every step of the scale one step down, for a quieter page. Only the
+   tokens change; every rule keeps using them. --fs-2xs stays: the shelf's spine labels are drawn to it. */
+:root[data-text="small"]{
+ --fs-xs:11px;--fs-sm:12px;--fs-md:13px;--fs-lg:14px;--fs-base:15px;--fs-xl:18px;
+ --fs-lead:clamp(17px,2.5vw + 7px,20px);--fs-2xl:22px;--fs-3xl:clamp(30px,4.5vw,36px)}
+
 /* Reset (after github.com/manish-basargekar/css-reset): border-box everywhere, no default
    margins, so every gap on the page comes from the scale. */
 *,*::before,*::after{box-sizing:border-box}
@@ -146,13 +152,16 @@ dt,dd{padding:var(--space-3) 0;border-bottom:1px solid var(--rule);margin:0}
 dt{padding-top:var(--space-4)}
 .photo{float:right;width:132px;aspect-ratio:1;margin:6px 0 var(--space-4) var(--space-8); /* 6px: optical, top meets the first line's cap height */border-radius:50%;background:var(--panel);overflow:hidden;box-shadow:0 0 0 1px var(--rule)}
 .photo img{width:100%;height:100%;object-fit:cover;display:block}
+/* The photo belongs to the opening paragraphs: a section or heading after it starts below it, so a short
+   introduction (or small text) never lets a list run under the circle. */
+.photo~section,.photo~h2{clear:both}
 .skip{position:absolute;left:-9999px;top:var(--space-3);z-index:10;padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:var(--ink);color:var(--bg);font:var(--fs-md) var(--font-ui);text-decoration:none}
 .skip:focus{left:var(--space-4)}
 
 /* Home */
 /* Home: a letter in the display face (greeting, one-liner, where they worked, what they're doing now), then
    a "Recent" list mixing writing, research and books by date. */
-.home .letter{max-width:var(--measure)}
+.home .letter{max-width:var(--measure);display:flow-root} /* flow-root: holds the floated photo */
 .home .letter p{font-family:var(--font-display);font-size-adjust:var(--display-adjust);font-size:var(--fs-lead);line-height:var(--lh-normal);letter-spacing:var(--track-display);margin:0 0 var(--space-5);text-wrap:pretty}
 .home .letter .hi{font-size:var(--fs-2xl);margin-bottom:var(--space-3)}
 .home .recent{margin-top:var(--space-10)}
@@ -163,6 +172,13 @@ dt{padding-top:var(--space-4)}
 .xp li{display:grid;grid-template-columns:7rem 1fr;gap:var(--space-4);margin:0;padding:var(--space-3) 0;border-bottom:1px solid var(--rule)}
 .xp .when{font:var(--fs-sm)/var(--lh-body) var(--font-ui);color:var(--mute);font-variant-numeric:tabular-nums;padding-top:2px}
 .xp .sum{display:block;font-size:var(--fs-lg);color:var(--mute)}
+/* A section heading with a small pill on its right (About: Experience with the CV, Short bio with Copy;
+   the end of an essay: All writing). */
+.sh{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);margin:var(--space-12) 0 var(--space-3)}
+.sh h2{margin:0}
+.all{flex:none;font:var(--fs-sm)/var(--lh-none) var(--font-ui);color:var(--ink);text-decoration:none;padding:var(--space-2) var(--space-3);border:1px solid var(--rule);border-radius:var(--radius-full)}
+@media(hover:hover){.all:hover{background:var(--hover);border-color:var(--mute)}}
+.all::after{content:" →";color:var(--mute)}
 /* Copy button (About, short bio): a pill like .all, confirming in place. */
 .copy{background:none;cursor:pointer;touch-action:manipulation}
 .copy::after{content:none}
@@ -294,6 +310,7 @@ html.fresh main{animation:page-in var(--dur-page) var(--ease-out) both}
 /* A theme change doesn't animate the page, only the switcher's chip. */
 .theme-switching *:not(.theme),.theme-switching *:not(.theme)::before,.theme-switching *::after{transition:none!important}
 footer a{margin-right:var(--space-3);text-decoration:none}
+footer>a:last-of-type{margin-right:0} /* the " · Updated" that follows brings its own space */
 
 @media(max-width:820px){
  nav.rail{position:static;width:auto;background:none;padding:0;margin:0 0 var(--space-8);display:block;overflow:visible}
@@ -303,6 +320,21 @@ footer a{margin-right:var(--space-3);text-decoration:none}
  nav.rail .links a{padding:var(--space-1) var(--space-3);margin:0}
  nav.rail .foot{display:none}
  footer{display:block}
+}
+/* Menu "top" (Site settings) on wider screens: the rail becomes a row above the page, the name on the
+   left and the pages on the right, the width of the text column on every page (on Reading the shelf is
+   wider than it), so it never moves between pages.
+   The social links, the date and the theme switch move to the footer, as on phones. Below 820px both
+   menus are the same strip (above). The current page keeps its pill, and Rail.astro slides it sideways. */
+@media(min-width:821px){
+ :root[data-menu="top"] .wrap{padding-left:var(--space-10)}
+ :root[data-menu="top"] nav.rail{position:static;width:auto;max-width:var(--measure);margin:0 auto var(--space-12);padding:0;display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--space-2) var(--space-6);overflow:visible}
+ :root[data-menu="top"] nav.rail::after,:root[data-menu="top"] nav.rail .foot{display:none}
+ :root[data-menu="top"] nav.rail .links{flex-direction:row;flex-wrap:wrap;align-items:center;row-gap:2px;margin:0} /* the pills' outer edges meet the column's edges */
+ :root[data-menu="top"] nav.rail .links a{margin:0}
+ :root[data-menu="top"] footer{display:block}
+ :root[data-menu="top"] footer .theme{--seg:var(--space-6)}
+ :root[data-menu="top"] footer .theme svg{width:14px;height:14px}
 }
 @media(max-width:640px){
  h1{margin-bottom:var(--space-6)}

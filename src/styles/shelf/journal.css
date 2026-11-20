@@ -188,6 +188,8 @@
  .shelf-journal .ledger dd{justify-content:flex-start;min-width:0}
  .shelf-journal .shown{grid-column:1/-1;min-height:0}
 }
+/* With the menu on top there is no rail line to start from: the band spans the window. */
+:root[data-menu="top"] .shelf-journal .bar::before,:root[data-menu="top"] .shelf-journal .bar::after{left:0}
 /* Phones: the bar is full bleed and wraps (search first), the date margin goes, the covers scroll. */
 @media(max-width:820px){
  .shelf-journal .bar::before,.shelf-journal .bar::after{left:0} /* no rail beside the page here */

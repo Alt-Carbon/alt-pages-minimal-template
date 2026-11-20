@@ -24,7 +24,8 @@ So a change anywhere else, such as `src/`, `public/` or `scripts/`, is undone at
 | Words, links, photos | `content/*.json`, `content/writing/*.md`, or the editor at `/admin` | Yes |
 | Hiding a page | its `"show": false` (`content/about.json`, `writing.json`, `research.json`, `reading.json`, `now.json`), or the page's switch in the editor | Yes |
 | A new page (Projects, Talks…) | a Markdown file in `content/pages/` (`title`, optional `show`, `photo`, `description`, then the text), or Your pages in the editor | Yes |
-| A setting the template already has (accent colour, …) | `content/site.json`, or the editor | Yes |
+| A setting the template already has (accent colour, menu, text size, …) | `content/site.json`, or the editor | Yes |
+| The menu along the top instead of on the left, the photo on the home page, smaller text | `"menu": "top"`, `"homePhoto": true`, `"textSize": "small"` in `content/site.json`, or the editor (Site settings; the home photo is under Home) | Yes |
 | Which page a field is edited on, in the editor | `site_pages` in `scripts/prepare.mjs` | **No** (template code) |
 | A different layout or new behaviour | `src/` | **No**, see below |
 
@@ -47,7 +48,7 @@ Files: `src/layouts/Base.astro` (every page), `src/styles/site.css` (most styles
 
 ### Colours
 
-Visitors can switch between light and dark (the buttons at the bottom of the rail), so colours are written as `light-dark(<light>, <dark>)`. Keep both values when you change one.
+Visitors can switch between light and dark (the buttons at the bottom of the rail, or in the footer with the menu on top and on phones), so colours are written as `light-dark(<light>, <dark>)`. Keep both values when you change one.
 
 | Variable | What it colours |
 |---|---|
@@ -64,9 +65,13 @@ Visitors can switch between light and dark (the buttons at the bottom of the rai
 
 `--font-display` (the name and headings; a serif), `--font-text` (what you read), `--font-ui` (menu, tabs, buttons). Sizes: `--fs-xs` 12px … `--fs-base` 16px … `--fs-3xl` (the big headings). `--rail-w` is the left menu's width.
 
+### Layout options
+
+The three layout settings in `content/site.json` become attributes on `<html>` (set in `src/layouts/Base.astro`), so `content/custom.css` can target one: `data-menu="side"` or `"top"` (`menu`), `data-text="normal"` or `"small"` (`textSize`: "small" redefines the `--fs-*` sizes one step down, nothing else). `homePhoto` adds the photo beside the home page's letter. On phones both menus are the same strip at the top.
+
 ### Parts of the page
 
-`.rail` the left menu · `.home` the home page · `.essay` a piece of writing · `.rows` lists of recent things · `.xp` Experience on About · `.pubs` Research · `.booklist` and the shelf styles for Reading · `.photo` the photo
+`.rail` the menu (on the left, or along the top with `data-menu="top"`) · `.home` the home page · `.essay` a piece of writing · `.rows` lists of recent things · `.xp` Experience on About · `.pubs` Research · `.booklist` and the shelf styles for Reading · `.photo` the photo
 
 ## The editor's marks: data-field
 

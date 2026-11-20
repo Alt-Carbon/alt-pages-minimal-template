@@ -28,6 +28,14 @@ export const Site = z.object({
   // How the Reading page draws the shelf; one module each in src/scripts/shelf/.
   shelf: z.enum(["journal", "gallery", "stacks", "turn"]).catch("journal").default("journal"),
   accent: z.enum(accents.map((a) => a.id) as [string, ...string[]]).default("aerospace-orange"),
+  // Layout choices, each set as an attribute on <html> in Base.astro and styled in site.css. The defaults
+  // are the template's own look, so a site.json without them keeps it. An unknown value falls back too.
+  // menu: the pages as a rail on the left, or a row along the top (phones always have the row).
+  menu: z.enum(["side", "top"]).catch("side").default("side"),
+  // homePhoto: site.photo beside the letter on the home page, as well as on About.
+  homePhoto: z.boolean().catch(false).default(false),
+  // textSize: "small" is one step down the whole type scale (the --fs-* tokens).
+  textSize: z.enum(["normal", "small"]).catch("normal").default("normal"),
   owner: z.string().default(""),
   repo: z.string().default(""),
   authWorker: z.string().default(""),

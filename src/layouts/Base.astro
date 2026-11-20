@@ -1,5 +1,5 @@
 ---
-// Every page: head, the rail, one main, and the footer that only shows on phones.
+// Every page: head, the rail, one main, and the footer (shown on phones, and everywhere with the menu on top).
 import "@fontsource-variable/geist/wght.css";
 import "@fontsource-variable/geist/wght-italic.css";
 import "@fontsource-variable/eb-garamond/wght.css";
@@ -37,7 +37,8 @@ const ld = page === "essay"
       : null;
 ---
 <!doctype html>
-<html lang="en" data-grain={site.grain ? "" : undefined}>
+<!-- The owner's layout choices (Site settings), read by site.css: data-menu "side" or "top", data-text "normal" or "small". -->
+<html lang="en" data-grain={site.grain ? "" : undefined} data-menu={site.menu} data-text={site.textSize}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

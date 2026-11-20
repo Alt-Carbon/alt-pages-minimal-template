@@ -132,9 +132,12 @@ singletons:
       - { label: Place, name: place, widget: string, required: false }
       - { label: Employer, name: employer, widget: string, required: false }
       - { label: Employer link, name: employerUrl, widget: string, required: false }
-      - { label: Photo, name: photo, widget: image, required: false, hint: "Shown on the About page." }${links("social", "Social links", "Email first, as mailto:you@example.com")}
+      - { label: Photo, name: photo, widget: image, required: false, hint: "Shown on the About page, and on the home page if you turn that on under Home." }
+      - { label: Photo on the home page, name: homePhoto, widget: boolean, default: false, required: false, hint: "Shows your photo beside the letter on the home page. Add the photo under About first." }${links("social", "Social links", "Email first, as mailto:you@example.com")}
       - { label: Background grain, name: grain, widget: boolean, default: true, required: false, hint: "A faint paper-like grain behind the whole site. Turn off for a plain background." }
       - { label: Bookshelf style, name: shelf, widget: select, default: journal, hint: "How the Reading page shows your books.", options: [ { label: "Journal: a year-by-year reading log with your reviews", value: journal }, { label: "Gallery: large covers, a book opens in a panel tinted its own colour", value: gallery }, { label: "Stacks: books lying in piles by year, titles readable", value: stacks }, { label: "Turn: 3D books on a dark shelf that turn to face you", value: turn } ] }
+      - { label: Menu, name: menu, widget: select, default: side, required: false, hint: "Where the list of your pages sits, on every page. On phones it is always along the top.", options: [ { label: "Side: a list of your pages on the left", value: side }, { label: "Top: your pages in a row along the top, with your name", value: top } ] }
+      - { label: Text size, name: textSize, widget: select, default: normal, required: false, hint: "For all the text on your site.", options: [ { label: "Normal: the size most sites use", value: normal }, { label: "Small: a step smaller everywhere, for a quieter page", value: small } ] }
       - { label: Accent colour, name: accent, widget: select, default: aerospace-orange, hint: "For links, the selected tab and focus rings.", options: [ ${accents.map((a) => `{ label: "${a.label}", value: ${a.id}, color: "${a.light}" }`).join(", ")} ] }
       - { label: Goodreads profile, name: goodreads, widget: string, required: false, sync: reading, hint: "Open your profile on Goodreads and copy its address, e.g. goodreads.com/user/show/12345678-asha-rao. The profile must be public.${sampleWarning}" }
       - { label: Medium, name: medium, widget: string, required: false, sync: medium, hint: "Your Medium address or @handle. Shows your 10 newest stories.${postsWarning}" }
@@ -175,6 +178,7 @@ singletons:
       - label: Experience
         name: experience
         widget: list
+        import: linkedin
         required: false
         collapsed: true
         summary: "{{fields.role}}, {{fields.org}}"
@@ -236,7 +240,7 @@ site_pages:
     label: Home
     url: /
     lede: "The first thing visitors see. Below these, your newest writing, research and books appear by themselves."
-    fields: [site.greeting, site.oneLiner]
+    fields: [site.greeting, site.oneLiner, site.homePhoto]
     note: "Also on Home: where you worked before (from About), the first line of Now, and your newest writing, research and books. Change those on their own pages."
   - id: writing
     label: Writing

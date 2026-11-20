@@ -20,6 +20,9 @@
   "grain": true,
   "shelf": "journal",
   "accent": "aerospace-orange",
+  "menu": "side",
+  "homePhoto": false,
+  "textSize": "normal",
   "advanced": {
     "autoUpdate": true,
     "dashboard": "https://alt-pages-dashboard.manish-176.workers.dev",

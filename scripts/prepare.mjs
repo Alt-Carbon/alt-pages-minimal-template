@@ -6,7 +6,7 @@
 //  3. Writes public/admin/config.yml, the editor's configuration, and copies the
 //     pinned Sveltia CMS bundle next to it.
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { mediumSource, substackSource } from "../src/worker/core/posts.js";
 import { profileNameFrom, resolveProfileName, userIdFrom } from "../src/worker/core/feed.js";
 
@@ -308,6 +308,14 @@ collections:
       - { label: Text, name: body, widget: markdown }
 `;
 write("public/admin/config.yml", config);
+// A demo site's editor runs on its sample content and saves nothing (DEMO_EDITOR=1 at build; see
+// public/admin/index.html). Every other build makes sure no demo content is left behind.
+if (process.env.DEMO_EDITOR) {
+  const files = {};
+  const walk = (dir) => { for (const f of readdirSync(dir, { withFileTypes: true })) { const p = `${dir}/${f.name}`; if (f.isDirectory()) walk(p); else if (/\.(json|md|css)$/.test(f.name)) files[p] = readFileSync(p, "utf8"); } };
+  walk("content");
+  write("public/admin/demo.js", `export default ${JSON.stringify(files)};\n`);
+} else if (existsSync("public/admin/demo.js")) rmSync("public/admin/demo.js");
 const feeds = Object.values(postSources).filter(Boolean).map((s) => s.feed).join(" ") || "(none)";
 console.log(`prepare: repo ${repo || "(unknown)"}, owner ${owner || "(unknown)"}, goodreads ${goodreadsId || "(none)"}, posts ${feeds}, editor config written`);
 
